@@ -1440,6 +1440,7 @@ void AddSC_npc_dynamic_teleporter();
 void AddSC_PWS_Transmogrification();
 void AddSC_CS_Transmogrification();
 void AddSC_ArenaWatcher();
+void Add_SC_Custom_Rates();
 #endif
 
 void AddCustomScripts()
@@ -1450,5 +1451,6 @@ void AddCustomScripts()
     AddSC_PWS_Transmogrification();
     AddSC_CS_Transmogrification();
     AddSC_ArenaWatcher();
+    Add_SC_Custom_Rates();
 #endif
 }

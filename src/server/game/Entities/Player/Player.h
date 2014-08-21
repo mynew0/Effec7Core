@@ -2363,6 +2363,12 @@ class Player : public Unit, public GridObject<Player>
         PresetMapType presetMap; // presetMap[presetId] = presetData
 #endif
 
+        void SetCustomXpRate(uint32 rate) { m_CustomXpRate = rate; }
+        uint32 GetCustomXpRate() const { return m_CustomXpRate; }
+
+        void SetCustomLootRate(uint32 rate) { m_CustomLootRate = rate; }
+        uint32 GetCustomLootRate() const { return m_CustomLootRate; }
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
@@ -2691,6 +2697,10 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
+
+        // Custom Rate System
+        uint32 m_CustomXpRate;
+        uint32 m_CustomLootRate;
         
         // Spectator System
         bool spectatorFlag;

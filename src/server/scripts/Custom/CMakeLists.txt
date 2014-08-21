@@ -18,6 +18,7 @@ Custom/Transmog/Transmogrification.h
 Custom/Transmog/Transmogrification.cpp
 Custom/Transmog/Transmogrifier.cpp
 Custom/Spectator.cpp
+Custom/IndividualRateSystem.cpp
 )
 
 message("  -> Prepared: Custom")

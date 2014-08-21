@@ -1225,6 +1225,49 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = sConfigMgr->GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = sConfigMgr->GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
 
+    // Individual XP/Loot Rates
+    int sec = sConfigMgr->GetIntDefault("Player.XpRateSecurity", 0);
+
+    if (sec < SEC_PLAYER || sec > SEC_ADMINISTRATOR)
+    {
+        TC_LOG_ERROR("server.loading", "Player.XpRateSecurity has invalid security `%i`, must be between `%i and `%i`, defaulting to 0 ...",
+            sec, SEC_PLAYER, SEC_ADMINISTRATOR);
+        m_int_configs[CONFIG_PLAYER_INDIVIDUAL_XP_RATE_SECURITY] = 0;
+    }
+    else
+        m_int_configs[CONFIG_PLAYER_INDIVIDUAL_XP_RATE_SECURITY] = sec;
+
+    sec = sConfigMgr->GetIntDefault("Player.LootRateSecurity", 0);
+    if (sec < SEC_PLAYER || sec > SEC_ADMINISTRATOR)
+    {
+        TC_LOG_ERROR("server.loading", "Player.LootRateSecurity has invalid security `%i`, must be between `%i and `%i`, defaulting to 0 ...",
+            sec, SEC_PLAYER, SEC_ADMINISTRATOR);
+        m_int_configs[CONFIG_PLAYER_INDIVIDUAL_LOOT_RATE_SECURITY] = 0;
+    }
+    else
+        m_int_configs[CONFIG_PLAYER_INDIVIDUAL_LOOT_RATE_SECURITY] = sec;
+
+    int maxXPRate = sConfigMgr->GetIntDefault("Player.MaximumRate", 1);
+    if (maxXPRate < 1)
+    {
+        TC_LOG_ERROR("server.loading", "Player.MaximumXpRate has too low value `%i`, defaulting to 1 ...", maxXPRate);
+        m_int_configs[CONFIG_PLAYER_MAXIMUM_INDIVIDUAL_XP_RATE] = 1;
+    }
+    else
+        m_int_configs[CONFIG_PLAYER_MAXIMUM_INDIVIDUAL_XP_RATE] = maxXPRate;
+
+    maxXPRate = sConfigMgr->GetIntDefault("Player.MaximumLootRate", 1);
+    if (maxXPRate < 1)
+    {
+        TC_LOG_ERROR("server.loading", "Player.MaximumLootRate has too low value `%i`, defaulting to 1 ...", maxXPRate);
+        m_int_configs[CONFIG_PLAYER_MAXIMUM_INDIVIDUAL_LOOT_RATE] = 1;
+    }
+    else
+        m_int_configs[CONFIG_PLAYER_MAXIMUM_INDIVIDUAL_LOOT_RATE] = maxXPRate;
+
+    m_bool_configs[CONFIG_PLAYER_INDIVIDUAL_XP_RATE_SHOW_ON_LOGIN] = sConfigMgr->GetBoolDefault("Player.ShowXpRateOnLogin", true);
+    m_bool_configs[CONFIG_PLAYER_INDIVIDUAL_LOOT_RATE_SHOW_ON_LOGIN] = sConfigMgr->GetBoolDefault("Player.ShowLootRateOnLogin", true);
+
     // Stats limits
     m_bool_configs[CONFIG_STATS_LIMITS_ENABLE] = sConfigMgr->GetBoolDefault("Stats.Limits.Enable", false);
     m_float_configs[CONFIG_STATS_LIMITS_DODGE] = sConfigMgr->GetFloatDefault("Stats.Limits.Dodge", 95.0f);
