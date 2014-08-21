@@ -1,9 +1,5 @@
 ## Effec7Core
 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/435/badge.svg)](https://scan.coverity.com/projects/435)  
-`3.3.5`: [![3.3.5 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=master)](https://travis-ci.org/TrinityCore/TrinityCore)
-`4.3.4`: [![4.3.4 Build Status](https://travis-ci.org/TrinityCore/TrinityCore.svg?branch=4.3.4)](https://travis-ci.org/TrinityCore/TrinityCore)
-
 ## Introduction
 Hello! I'm really happy to introduce you to this World of Warcraft:Wrath of the Lich King *MMORPG* Emulator.
 Effec7Core is a modified Trinitycore (*MMORPG FRAMEWORK based mostly in C++*) for FUN Content Servers.
