@@ -21,6 +21,7 @@
 */
 
 #include "World.h"
+#include "DynamicTeleportMgr.h"
 #include "AchievementMgr.h"
 #include "ArenaTeamMgr.h"
 #include "AuctionHouseMgr.h"
@@ -1804,6 +1805,10 @@ void World::SetInitialWorldSettings()
     InitGuildResetTime();
 
     LoadCharacterNameData();
+
+    // Dynamic Teleporter
+    TC_LOG_INFO("server.loading", "Initializing Dynamic Teleporter...");
+    sDynamicTeleportMgr->Init();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
