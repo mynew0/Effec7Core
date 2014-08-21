@@ -17,6 +17,7 @@ Custom/DynamicTeleporter.cpp
 Custom/Transmog/Transmogrification.h
 Custom/Transmog/Transmogrification.cpp
 Custom/Transmog/Transmogrifier.cpp
+Custom/Spectator.cpp
 )
 
 message("  -> Prepared: Custom")
