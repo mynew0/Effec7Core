@@ -12,6 +12,7 @@ file(GLOB_RECURSE sources_Commands Commands/*.cpp Commands/*.h)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Commands/cs_anticheat.cpp
   ${sources_Commands}
 )
 
