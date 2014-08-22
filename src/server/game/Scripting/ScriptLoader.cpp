@@ -1441,6 +1441,7 @@ void AddSC_PWS_Transmogrification();
 void AddSC_CS_Transmogrification();
 void AddSC_ArenaWatcher();
 void Add_SC_Custom_Rates();
+void AddSC_npc_1v1arena();
 #endif
 
 void AddCustomScripts()
@@ -1452,5 +1453,6 @@ void AddCustomScripts()
     AddSC_CS_Transmogrification();
     AddSC_ArenaWatcher();
     Add_SC_Custom_Rates();
+    AddSC_npc_1v1arena();
 #endif
 }
