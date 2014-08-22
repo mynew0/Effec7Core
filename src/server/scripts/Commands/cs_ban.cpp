@@ -43,6 +43,8 @@ public:
             { "character",      rbac::RBAC_PERM_COMMAND_UNBAN_CHARACTER,     true,  &HandleUnBanCharacterCommand,        "", NULL },
             { "playeraccount",  rbac::RBAC_PERM_COMMAND_UNBAN_PLAYERACCOUNT, true,  &HandleUnBanAccountByCharCommand,    "", NULL },
             { "ip",             rbac::RBAC_PERM_COMMAND_UNBAN_IP,            true,  &HandleUnBanIPCommand,               "", NULL },
+            { "accountcustom",  SEC_ADMINISTRATOR,                           true, &HandleUnBanAccountCustomCommand,     "", NULL },
+            { "ipcustom",       SEC_ADMINISTRATOR,                           true, &HandleUnBanIPCustomCommand,          "", NULL },
             { NULL, 0, false, NULL, "", NULL }
         };
         static ChatCommand banlistCommandTable[] =
@@ -81,6 +83,66 @@ public:
     static bool HandleBanAccountCommand(ChatHandler* handler, char const* args)
     {
         return HandleBanHelper(BAN_ACCOUNT, args, handler);
+    }
+
+    static bool HandleUnBanAccountCustomCommand(ChatHandler* handler, const char *args)
+    {
+        char* account = strtok((char*)args, " ");
+        if (!account)
+            return false;
+
+        QueryResult ACCresult = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", account);
+        if (!ACCresult)
+        {
+            handler->PSendSysMessage("Tento ACC neexistuje");
+            return true;
+        }
+
+        Field* ACCfields = ACCresult->Fetch();
+        uint32 accID = ACCfields[0].GetUInt32();
+
+        QueryResult result = LoginDatabase.PQuery("SELECT bannedby FROM account_banned WHERE id = '%u' AND active = 1", accID);
+        if (!result)
+        {
+            handler->PSendSysMessage("Tento account ban nema.");
+            return true;
+        }
+
+        std::string gmNick = handler->GetSession()->GetPlayerName();
+        do
+        {
+            Field* fields = result->Fetch();
+            if (fields[0].GetString() == gmNick)
+                return HandleUnBanHelper(BAN_ACCOUNT, args, handler);
+        } while (result->NextRow());
+
+        handler->PSendSysMessage("Tento account banoval niekto iny. Nesnaz sa odbanovat jeho ban!");
+        return true;
+    }
+
+    static bool HandleUnBanIPCustomCommand(ChatHandler* handler, const char *args)
+    {
+        char* ip = strtok((char*)args, " ");
+        if (!ip)
+            return false;
+
+        QueryResult result = LoginDatabase.PQuery("SELECT bannedby FROM ip_banned WHERE ip = '%s'", ip);
+        if (!result)
+        {
+            handler->PSendSysMessage("Na tejto IP adrese ban nie je.");
+            return true
+        }
+
+        std::string gmNick = handler->GetSession()->GetPlayerName();
+        do
+        {
+            Field* fields = result->Fetch();
+            if (fields[0].GetString() == gmNick)
+                return HandleUnBanHelper(BAN_IP, args, handler);
+        } while (result->NextRow());
+
+        handler->PSendSysMessage("Tuto IP Adresu banoval niekto iny. Nesnaz sa odbanovat jeho ban!");
+        return true;
     }
 
     static bool HandleBanCharacterCommand(ChatHandler* handler, char const* args)
