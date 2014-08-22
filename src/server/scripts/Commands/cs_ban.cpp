@@ -130,7 +130,7 @@ public:
         if (!result)
         {
             handler->PSendSysMessage("Na tejto IP adrese ban nie je.");
-            return true
+            return true;
         }
 
         std::string gmNick = handler->GetSession()->GetPlayerName();
