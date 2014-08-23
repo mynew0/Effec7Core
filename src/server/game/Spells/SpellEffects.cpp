@@ -3302,8 +3302,12 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             {
                 // Glyph of Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(m_caster->GetPower(POWER_RUNIC_POWER), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue()))
+                    if (uint32 runic = m_caster->GetPower(POWER_RUNIC_POWER)/10)
+                    {                
+                        if (runic > 25)
+                            runic = 25;    
                         AddPct(totalDamagePercentMod, runic);
+                    }
                 break;
             }
             // Obliterate (12.5% more damage per disease)
@@ -4762,8 +4766,9 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
     {
         Position pos = destTarget->GetPosition();
         float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
-        float dist = m_caster->GetDistance(pos);
-        pos = m_caster->GetFirstCollisionPosition(dist, angle);
+        // get 2d distance since if unit casting is flying close to the target collison Position will return wrong x or y coordinate
+        float dist = m_caster->GetDistance2d(pos.GetPositionX(), pos.GetPositionY());
+        pos = m_caster->GetFirstCollisionPosition(dist, angle, pos.m_positionZ);
 
         m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
     }
@@ -5601,8 +5606,12 @@ void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true);
+    if (Player* player = (Player*)m_caster)
+    {
+        player->SetCanTitanGrip(true);
+        if (player->HasTwoHandWeaponInOneHand() && !player->HasAura(49152))
+            player->CastSpell(player, 49152, true);
+    }
 }
 
 void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)

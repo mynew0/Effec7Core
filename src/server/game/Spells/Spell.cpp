@@ -4633,7 +4633,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             else
-                return SPELL_FAILED_NOT_READY;
+                return m_spellInfo->Id == 15473 ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_FAILED_NOT_READY; // !Hack, returning not ready bugs shadowform client side
         }
 
         // check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
@@ -4649,7 +4649,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Check global cooldown
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
-        return SPELL_FAILED_NOT_READY;
+        return m_spellInfo->Id == 15473 ? SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW : SPELL_FAILED_NOT_READY; // !Hack, returning not ready bugs shadowform client side
 
     // only triggered spells can be processed an ended battleground
     if (!IsTriggered() && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -6446,8 +6446,52 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff, Position const* lo
             break;
     }
 
-    if (IsTriggered() || m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS))
+    if (m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS))
         return true;
+
+    if (IsTriggered())
+    {
+        switch (m_spellInfo->Id)
+        {
+            case 42208:
+            case 42209:
+            case 42210:
+            case 42211:
+            case 42212:
+            case 42213:
+            case 42198:
+            case 42937:
+            case 42938: // blizzard
+            case 42218:
+            case 42223:
+            case 42224:
+            case 42225:
+            case 42226:
+            case 42227:
+            case 47817:
+            case 47818: // rain of fire
+            case 42230:
+            case 42231:
+            case 42232:
+            case 42233:
+            case 48466: // hurricane
+            case 42234:
+            case 42243:
+            case 42244:
+            case 42245:
+            case 58432:
+            case 58433: // volley
+                if (DynamicObject* dynobj = m_caster->GetDynObject(m_triggeredByAuraSpell->Id))
+                    if (!target->IsWithinLOSInMap(dynobj))
+                        return false;
+                return true;
+            case 50622:
+            case 44949: // blade storm, break to go through below check
+                break;
+            default:
+                return true;
+        }
+    }
 
     /// @todo shit below shouldn't be here, but it's temporary
     //Check targets for LOS visibility (except spells without range limitations)

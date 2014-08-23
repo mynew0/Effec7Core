@@ -34,6 +34,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellAuras.h"
 #include "Util.h"
+#include <openssl/md5.h>
 #include "WorldPacket.h"
 
 namespace Trinity
@@ -151,6 +152,9 @@ Battleground::Battleground()
 
     m_ArenaTeamIds[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamIds[TEAM_HORDE]      = 0;
+
+    m_ArenaTeamStartMMR[TEAM_ALLIANCE] = 0;
+    m_ArenaTeamStartMMR[TEAM_HORDE] = 0;
 
     m_ArenaTeamMMR[TEAM_ALLIANCE]   = 0;
     m_ArenaTeamMMR[TEAM_HORDE]      = 0;
@@ -716,6 +720,8 @@ void Battleground::EndBattleground(uint32 winner)
     RemoveFromBGFreeSlotQueue();
 
     int32 winmsg_id = 0;
+    
+    int32 level = GetMaxLevel() / 10;
 
     if (winner == ALLIANCE)
     {
@@ -724,6 +730,9 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
         SetWinner(BG_TEAM_ALLIANCE);
+        
+        if (isBattleground())
+            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (0, %d, NOW());", level);
     }
     else if (winner == HORDE)
     {
@@ -732,6 +741,9 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
         SetWinner(BG_TEAM_HORDE);
+        
+        if (isBattleground())
+            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (1, %d, NOW());", level);
     }
     else
     {
@@ -790,6 +802,9 @@ void Battleground::EndBattleground(uint32 winner)
             }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+            
+            if (isBattleground())
+                CharacterDatabase.PQuery("INSERT INTO pvpstats_players (character_guid, level, date) VALUES (%d, %d, NOW());", player->GetGUID(), level);
         }
         else
         {

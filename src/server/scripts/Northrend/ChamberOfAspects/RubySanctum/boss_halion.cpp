@@ -483,6 +483,8 @@ class boss_twilight_halion : public CreatureScript
                 me->SetHealth(halion->GetHealth());
                 me->SetPhaseMask(0x20, true);
                 me->SetReactState(REACT_AGGRESSIVE);
+
+                me->setRegeneratingHealth(false); // !Hack - prevents Twilight Halion from regenerating health until engaged
             }
 
             void EnterCombat(Unit* who) override
@@ -495,6 +497,8 @@ class boss_twilight_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 2);
+
+                me->setRegeneratingHealth(true); // !Hack - Is there any point on this? Probably not. Just make sure nothing unexpected happens.
             }
 
             // Never evade
@@ -526,6 +530,16 @@ class boss_twilight_halion : public CreatureScript
                         controller->Kill(controller);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            }
+
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                    ExecuteEvent(eventId);
+
+                generic_halionAI::UpdateAI(diff);
             }
 
             void DamageTaken(Unit* attacker, uint32& damage) override

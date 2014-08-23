@@ -42,6 +42,7 @@ void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
+void AddSC_pet_spell_scripts();
 
 void AddSC_SmartScripts();
 
@@ -674,6 +675,7 @@ void AddSC_zangarmarsh();
 
 // Events
 void AddSC_event_childrens_week();
+void AddSC_event_midsummer();
 
 // Pets
 void AddSC_deathknight_pet_scripts();
@@ -746,6 +748,7 @@ void AddSpellScripts()
     AddSC_item_spell_scripts();
     AddSC_example_spell_scripts();
     AddSC_holiday_spell_scripts();
+    AddSC_pet_spell_scripts();
 }
 
 void AddCommandScripts()
@@ -1401,6 +1404,7 @@ void AddEventScripts()
 {
 #ifdef SCRIPTS
     AddSC_event_childrens_week();
+    AddSC_event_midsummer();
 #endif
 }
 
@@ -1442,6 +1446,7 @@ void AddSC_CS_Transmogrification();
 void AddSC_ArenaWatcher();
 void Add_SC_Custom_Rates();
 void AddSC_npc_1v1arena();
+void AddSC_custom();
 #endif
 
 void AddCustomScripts()
@@ -1454,5 +1459,6 @@ void AddCustomScripts()
     AddSC_ArenaWatcher();
     Add_SC_Custom_Rates();
     AddSC_npc_1v1arena();
+	AddSC_custom();
 #endif
 }
