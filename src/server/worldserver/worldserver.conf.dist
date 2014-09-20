@@ -1548,6 +1548,14 @@ GM.Chat = 2
 GM.WhisperingTo = 2
 
 #
+# GM.FreezeAuraDuration
+#       Description: Allows to set a default duration to the Freeze Aura
+#                    applied on players when using the .freeze command
+#       Default:     0 - (Original aura duration. Lasts until the .unfreeze command is used)
+#                    N - (Aura duration if unspecified in .freeze command, in seconds)
+GM.FreezeAuraDuration = 0
+
+#
 #    GM.InGMList.Level
 #        Description: Maximum GM level shown in GM list (if enabled) in non-GM state (.gm off).
 #        Default:     3 - (Anyone)
@@ -1739,6 +1747,15 @@ Rate.Drop.Item.ReferencedAmount = 1
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
+
+#
+#    Rate.Quest.Money.Reward
+#    Rate.Quest.Money.Max.Level.Reward
+#        Description: Multiplier for money quest rewards. Can not be below 0.
+#        Default:     1
+
+Rate.Quest.Money.Reward = 1
+Rate.Quest.Money.Max.Level.Reward = 1
 
 #
 #    Rate.RepairCost
@@ -2049,6 +2066,14 @@ Battleground.QueueAnnouncer.Enable = 0
 #                     1 - (Private, Only queued players can see it)
 
 Battleground.QueueAnnouncer.PlayerOnly = 0
+
+#
+#    Battleground.StoreStatistics.Enable
+#        Description: Store Battleground scores in the database.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Battleground.StoreStatistics.Enable = 0
 
 #
 #    Battleground.InvitationType
@@ -2415,6 +2440,20 @@ CharDelete.KeepDays = 30
 ###################################################################################################
 # CUSTOM SERVER OPTIONS
 #
+#     AllowTrackBothResources
+#        Description: Allows players to track herbs and minerals at the same time (if they have the skills)
+#        Default: 0 (do not allow)
+#                 1 (allow)
+#
+#        Note: The following are client limitations and cannot be coded for:
+#           * The minimap tracking icon will display whichever skill is activated second
+#           * The minimap tracking list will only show a check mark next to the last skill activated (sometimes this
+#              bugs out and doesn't switch the check mark. It has no effect on the actual tracking though).
+#           * The minimap dots are yellow for both resources
+
+AllowTrackBothResources = 0
+
+#
 #    PlayerStart.AllReputation
 #        Description: Players will start with most of the high level reputations that are needed
 #                     for items, mounts etc.
@@ -2614,6 +2653,356 @@ UI.ShowQuestLevelsInDialogs = 0
 ###################################################################################################
 
 ###################################################################################################
+# AUCTION HOUSE BOT SETTINGS
+#
+#    AuctionHouseBot.Update.Interval
+#       Description: Interval in seconds for AHBot to get updated
+#       Default:     20
+#
+
+AuctionHouseBot.Update.Interval = 20
+
+#
+#    AuctionHouseBot.Seller.Enabled
+#       Description: General enable or disable AuctionHouseBot Seller functionality
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Seller.Enabled = 0
+
+#
+#    AuctionHouseBot.Alliance.Items.Amount.Ratio
+#       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Alliance AH
+#       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Alliance.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.Horde.Items.Amount.Ratio
+#        Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Horde AH
+#       Default: 100 (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Horde.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.Neutral.Items.Amount.Ratio
+#       Description: Enable/Disable (disabled if 0) the part of AHBot that puts items up for auction on Neutral AH
+#       Default:     100 - (Enabled with 100% of items specified in AuctionHouse.Items.Amount.color section)
+
+AuctionHouseBot.Neutral.Items.Amount.Ratio = 100
+
+#
+#    AuctionHouseBot.MinTime
+#       Description: Minimum time for the new auction in hours
+#       Default: 1 - (Hour)
+
+AuctionHouseBot.MinTime = 1
+
+#
+#    AuctionHouseBot.MaxTime
+#       Description: Maximum time for the new auction in hours
+#       Default:     72 - (Hours)
+
+AuctionHouseBot.MaxTime = 72
+
+#
+#    AuctionHouseBot.Items.Vendor
+#       Description: Include items that can be bought from vendors.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.Vendor = 0
+
+#
+#    AuctionHouseBot.Items.Loot
+#       Description: Include items that can be looted or fished for.
+#       Default:     1 - (Enabled)
+#                    0 - (Disabled)
+
+AuctionHouseBot.Items.Loot = 1
+
+#
+#    AuctionHouseBot.Items.Misc
+#       Description: Include misc. items.
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.Misc = 0
+
+#
+#    AuctionHouseBot.Bind.*
+#       Description: Indicates which bonding types to allow the bot to put up for auction
+#                       No     - Items that don't bind            Default 1 (Allowed)
+#                       Pickup - Items that bind on pickup        Default 0 (Not Allowed)
+#                       Equip  - Items that bind on equip         Default 1 (Allowed)
+#                       Use    - Items that bind on use           Default 1 (Allowed)
+#                       Quest  - Quest Items                      Default 0 (Not Allowed)
+#       Values:      0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Bind.No = 1
+AuctionHouseBot.Bind.Pickup = 0
+AuctionHouseBot.Bind.Equip = 1
+AuctionHouseBot.Bind.Use = 1
+AuctionHouseBot.Bind.Quest = 0
+
+#
+#    AuctionHouseBot.LockBox.Enabled
+#       Description: Enable or not lockbox in auctionhouse
+#       Default      0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.LockBox.Enabled = 0
+
+#
+#    AuctionHouseBot.ItemsPerCycle.Boost
+#       Description: This value is used to fill AH faster than normal when there is more than this value on missed items (not auctioned items).
+#                    Usually this value is only used once on server start with empty auction table.
+#       Default:     1000
+
+AuctionHouseBot.ItemsPerCycle.Boost = 1000
+
+#
+#    AuctionHouseBot.ItemsPerCycle.Normal
+#       Description: This value is used to fill AH for sold and expired items. A high value will be more resource intensive
+#                    Usually this value is used always when auction table is already initialised.
+#       Default:     20
+
+AuctionHouseBot.ItemsPerCycle.Normal = 20
+
+#
+#    AuctionHouseBot.BuyPrice.Seller
+#       Description: Should the Seller use BuyPrice or SellPrice to determine Bid Prices
+#       Default:     1 - (use SellPrice)
+#                    0 - (use BuyPrice)
+
+AuctionHouseBot.BuyPrice.Seller = 1
+
+#
+#    AuctionHouseBot.Alliance.Price.Ratio
+#       Description: Percentage by which the price of items selled on Alliance Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Alliance.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Horde.Price.Ratio
+#       Description: Percentage by which the price of items selled on Horde Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Horde.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Neutral.Price.Ratio
+#       Description: Percentage by which the price of items selled on Neutral Auction House is incremented / decreased
+#       Default:     100 - (Not modify)
+
+AuctionHouseBot.Neutral.Price.Ratio = 100
+
+#
+#    AuctionHouseBot.Items.ItemLevel.*
+#       Description: Prevent seller from listing items below/above this item level
+#       Default:     0 - (Disabled)
+
+AuctionHouseBot.Items.ItemLevel.Min = 0
+AuctionHouseBot.Items.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Items.ReqLevel.*
+#        Prevent seller from listing items below/above this required level
+#    Default: - 0 (Disabled)
+
+AuctionHouseBot.Items.ReqLevel.Min = 0
+AuctionHouseBot.Items.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Items.ReqSkill.*
+#       Description: Prevent seller from listing items below/above this skill level
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Items.ReqSkill.Min = 0
+AuctionHouseBot.Items.ReqSkill.Max = 0
+
+#
+#    AuctionHouseBot.Items.Amount.*
+#       Description: Define here for every item qualities how many items you want to be shown in Auction House
+#                    This value will be adjusted by AuctionHouseBot.FACTION.Items.Amount.Ratio to define the exact amount of
+#                    items that will finally be shown on Auction House
+#       Default:     0, 2000, 2500, 1500, 1000, 0, 0 (Gray, white, green, blue, purple, orange, yellow)
+
+AuctionHouseBot.Items.Amount.Gray = 0
+AuctionHouseBot.Items.Amount.White = 2000
+AuctionHouseBot.Items.Amount.Green = 2500
+AuctionHouseBot.Items.Amount.Blue = 1500
+AuctionHouseBot.Items.Amount.Purple = 1000
+AuctionHouseBot.Items.Amount.Orange = 0
+AuctionHouseBot.Items.Amount.Yellow = 0
+
+#
+#    AustionHouseBot.Class.*
+#       Description: Here you can set the class of items you prefer to be show on AH
+#                    These value are sorted by preference, from 0 (disabled) to 10 (max. preference)
+#       Default:     Consumable: 6
+#                    Container: 4
+#                    Weapon: 8
+#                    Gem: 3
+#                    Armor: 8
+#                    Reagent: 1
+#                    Projectile: 2
+#                    TradeGod: 10
+#                    Generic: 1
+#                    Recipe: 6
+#                    Quiver: 1
+#                    Quest: 1
+#                    Key: 1
+#                    Misc: 5
+#                    Glyph: 3
+
+AuctionHouseBot.Class.Consumable = 6
+AuctionHouseBot.Class.Container = 4
+AuctionHouseBot.Class.Weapon = 8
+AuctionHouseBot.Class.Gem = 3
+AuctionHouseBot.Class.Armor = 8
+AuctionHouseBot.Class.Reagent = 1
+AuctionHouseBot.Class.Projectile = 2
+AuctionHouseBot.Class.TradeGood = 10
+AuctionHouseBot.Class.Generic = 1
+AuctionHouseBot.Class.Recipe = 6
+AuctionHouseBot.Class.Quiver = 1
+AuctionHouseBot.Class.Quest = 1
+AuctionHouseBot.Class.Key = 1
+AuctionHouseBot.Class.Misc = 5
+AuctionHouseBot.Class.Glyph = 3
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+# AHBot ITEM FINE TUNING
+#    The following are usefull for limiting what character levels can
+#    benefit from the auction house
+#
+#    AuctionHouseBot.Class.Misc.Mount.ReqLevel.*
+#       Description: Prevent seller from listing mounts below/above this required level
+#       Default:     0
+
+AuctionHouseBot.Class.Misc.Mount.ReqLevel.Min = 0
+AuctionHouseBot.Class.Misc.Mount.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Misc.Mount.ReqSkill.*
+#       Description: Prevent seller from listing mounts below/above this skill level
+#       Default:     0
+
+AuctionHouseBot.Class.Misc.Mount.ReqSkill.Min = 0
+AuctionHouseBot.Class.Misc.Mount.ReqSkill.Max = 0
+
+#
+#    AuctionHouseBot.Class.Glyph.ReqLevel.*
+#       Description: Prevent seller from listing glyphs below/above this required level
+#       Default:     0
+
+AuctionHouseBot.Class.Glyph.ReqLevel.Min = 0
+AuctionHouseBot.Class.Glyph.ReqLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Glyph.ItemLevel.*
+#       Description: Prevent seller from listing glyphs below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.Glyph.ItemLevel.Min = 0
+AuctionHouseBot.Class.Glyph.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.TradeGood.ItemLevel.*
+#       Description: Prevent seller from listing trade good items below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.TradeGood.ItemLevel.Min = 0
+AuctionHouseBot.Class.TradeGood.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.Class.Container.ItemLevel.*
+#       Description: Prevent seller from listing contianers below/above this item level
+#       Default:     0
+
+AuctionHouseBot.Class.Container.ItemLevel.Min = 0
+AuctionHouseBot.Class.Container.ItemLevel.Max = 0
+
+#
+#    AuctionHouseBot.forceIncludeItems
+#       Description: Include these items and ignore ALL filters
+#                    List of ids with delimiter ','
+#       Default:     ""
+
+AuctionHouseBot.forceIncludeItems = ""
+
+#
+#    AuctionHouseBot.forceExcludeItems
+#       Description: Exclude these items even if they would pass the filters
+#                    List of ids with delimiter ','
+#       Example:     "21878,27774,27811,28117,28122,43949" (this removes old items)
+#       Default:     ""
+#
+
+AuctionHouseBot.forceExcludeItems = ""
+
+#
+###################################################################################################
+
+###################################################################################################
+#    AHBot Buyer config
+#
+#    AuctionHouseBot.Buyer.Enabled
+#       Description: General enable or disable AuctionHouseBot Buyer functionality
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Buyer.Enabled = 0
+
+#
+#    AuctionHouseBot.Buyer.FACTION.Enabled
+#       Description: Enable or disable buyer independently by faction
+#       Default:     0 - (Disabled)
+#                    1 - (Enabled)
+
+AuctionHouseBot.Buyer.Alliance.Enabled = 0
+AuctionHouseBot.Buyer.Horde.Enabled = 0
+AuctionHouseBot.Buyer.Neutral.Enabled = 0
+
+#
+#    AuctionHouseBot.BuyPrice.Buyer
+#       Description: Should the Buyer use BuyPrice or SellPrice to determine Bid Prices
+#       Default:     1 - (use BuyPrice)
+#                    0 - (use SellPrice)
+
+AuctionHouseBot.Buyer.Buyprice = 1
+
+#
+#    AuctionHouseBot.Buyer.Recheck.Interval
+#       Description: This specifies the time interval (in minutes) between two evaluations of the same selled item.
+#                    The lesser this value is, the more chances you give for item to be bought by ahbot.
+#       Default:     20 (20min.)
+
+AuctionHouseBot.Buyer.Recheck.Interval = 20
+
+#
+#    AuctionHouseBot.Buyer.Alliance.Chance.Ratio
+#       Description: Chance ratio for the buyer to buy an item. Higher the value, lesser the probability
+#       Example:     3 (1 out of 3 change, that is, 33%).
+#       Default:     3
+#
+
+AuctionHouseBot.Buyer.Alliance.Chance.Ratio = 3
+AuctionHouseBot.Buyer.Horde.Chance.Ratio = 3
+AuctionHouseBot.Buyer.Neutral.Chance.Ratio = 3
+
+#
+###################################################################################################
+
+###################################################################################################
 #  LOGGING SYSTEM SETTINGS
 #
 #  Appender config values: Given a appender "name"
@@ -2709,6 +3098,7 @@ Logger.commands.gm=3,Console GM
 Logger.sql.sql=5,Console DBErrors
 
 #Logger.achievement=3,Console Server
+#Logger.ahbot=3,Console Server
 #Logger.auctionHouse=3,Console Server
 #Logger.bg.arena=3,Console Server
 #Logger.bg.battlefield=3,Console Server
@@ -2766,6 +3156,7 @@ Log.Async.Enable = 0
 #                     1 - (Enabled)
 
 Allow.IP.Based.Action.Logging = 0
+
 #
 ###################################################################################################
 
@@ -2803,6 +3194,7 @@ PacketSpoof.BanDuration = 86400
 
 #
 ###################################################################################################
+
 
 ###################################################################################################
 #    Transmogrification config
@@ -3050,3 +3442,283 @@ Anticheat.MaxReportsForDailyReport = 70
 ###################################################################################################
 
 ###################################################################################################
+
+#########################################################
+# TriniChat IRC BOT For Trinity Core Configuration File #
+#########################################################
+# irc.active
+# Enable TriniChat Addon
+# Default: 1 - Enable
+# 0 - Disable
+#
+irc.active = 1
+
+##################################################
+# irc.icc
+# IRC connect code
+# Default: 001 - Welcome To Network msg
+# 375 - Beginning Of MOTD
+# 376 - End Of MOTD
+#
+irc.icc = 001
+
+##################################################
+# irc.host
+# IRC server to have TriniChat connect to
+#
+irc.host = "irc.xxxx.net"
+
+##################################################
+# irc.port
+# IRC server port to use
+#
+irc.port = "6667"
+
+##################################################
+# irc.user
+# The username to have TriniChat use to connect to the IRC server
+# irc.nick
+# IRC nickname to be used by the bot
+# irc.pass
+# The password to be used to identify to NickServ (IRC NickName Enforcement Services)
+#
+irc.user = "Trini_Chat"
+irc.nick = "Trini_Chat"
+irc.pass = "ServicesPass"
+
+##################################################
+# irc.auth
+# IRC Authentication Method
+# Default: 0 - Disable
+# 1 - NickServ - Normal Method - PRIVMSG NickServ :IDENTIFY Password
+# 2 - NickServ - Alternate Method To Identify To A Different Nick - PRIVMSG NickServ :IDENTIFY irc.auth.nick Password
+# 3 - QuakeNet - Normal Method - PRIVMSG Q@CServe.quakenet.org :AUTH irc.nick Password
+# 4 - QuakeNet - Alternate Method To Identify To A Different Nick - PRIVMSG Q@CServe.quakenet.org :AUTH irc.auth.nick Password
+# irc.auth.nick
+# IRC Nickname to use if Auth method 2 or 4 is used
+#
+irc.auth = 0
+irc.auth.nick = "NickServ"
+
+##################################################
+# irc.ldef
+# Leave a defined IRC channel on server connect
+# Default: 0 - Disable
+# 1 - Enable
+# irc.defchan
+# IRC channel to leave on server connect if irc.ldef is on
+#
+irc.ldef = 0
+irc.defchan = "lobby"
+
+##################################################
+# irc.wct
+# Time to wait before (re)attemptimg connection to IRC server
+# Default: 30000 - (30 Seconds)
+# irc.maxattempt
+# Maximum attempts to try IRC server
+# Default: 20
+#
+irc.wct = 30000
+irc.maxattempt = 20
+
+##################################################
+# irc.auto.announce
+# Time to wait in Minutes to announce random messages from database.
+# Default: 30 - (30 Minutes)
+#
+irc.auto.announce = 30
+
+##################################################
+# irc.autojoin_kick
+# Autojoin IRC channel if kicked
+# Default: 1 - Enable
+# 0 - Disable
+#
+irc.autojoin_kick = 1
+
+##################################################
+# irc.command_prefix
+# IRC command prefix
+# Example: (.)online all
+#
+irc.command_prefix = "."
+
+##################################################
+# irc.joinmsg
+# irc.rstmsg
+# irc.kickmsg
+# TriniChat bot join/restart/kick messages
+#
+irc.joinmsg = "TrinityCore With TriniChat $Ver Is Up And Running! Command Trigger Is: $Trigger"
+irc.rstmsg = "TriniChat Is Restarting, I Will Be Right Back."
+irc.kickmsg = "Do Not Kick Me Again, Severe Actions Will Be Taken!"
+
+##################################################
+# irc.chan_#
+# wow.chan_#
+# IRC and WOW channels to link. Leave # out of IRC channel. Both channels _ARE_ case sensitive
+# NOTE: you can have more than 1 IRC channel linked to wow channels, as in example:
+# Example: irc.chan_1 = "Trinity"
+# irc.chan_2 = "trinity2"
+# wow.chan_1 = "world"
+# wow.chan_2 = "LookingForGroup"
+# irc.pass_#
+# Passwords for said IRC channels (IRC server side)
+# Example:
+# irc.pass_1 = "password" password for irc channel #1
+# irc.pass_2 = "password2" password for irc channel #2
+irc.chan_1 = "ircchan"
+wow.chan_1 = "world"
+irc.pass_1 = "pass"
+
+##################################################
+# irc.staff_link
+# if set to 1 will link gm name announce to irc channel
+# Default: 0
+# irc.staff_chan
+# Print IRC messages to GM Name Announce and Gm Name Announce to IRC Channel
+# Default: "staff"
+# irc.ignore_bots
+# enter nicks of bots to ignore seprated by commas
+# Default: ""
+#
+irc.staff_link = 0
+irc.staff_chan = "staff"
+irc.ignore_bots = ""
+
+##################################################
+# irc.StatusChannel
+# Channel Name To Display Status Messages In (AuctionHouse, Levels, Deaths, Etc)
+# Default: ""
+# irc.AnnounceChannel
+# Channel Name To Display Announcements In (Announces, Notifies, Event)
+# Default: ""
+# irc.Tickets
+# Channel Name To Display Ticket Announcment in (Create, Edit, Closed, lag Reports)
+# Default: ""
+# Note: Botmask : Enable Ticket Announment must be activ
+#
+irc.StatusChannel = ""
+irc.StatusChannelPW = ""
+irc.AnnounceChannel = ""
+irc.AnnounceChannelPW = ""
+irc.Tickets = ""
+irc.TicketsPW = ""
+
+##################################################
+# irc.op_gm_login
+# Op The GM In All Channels The Bot Is On When They Log In To TriniChat
+# Default: 0 - Disable
+# 1 - Enable
+# irc.op_gm_level
+# The Minimum GM Level Required To Have The Bot Op The User
+# Default: 3 - GM Level 3
+#
+irc.op_gm_login = 0
+irc.op_gm_level = 3
+
+##################################################
+# irc.ajoin (Experimental/Under Development)
+# Force players to autojoin a WOW in game channel
+# Atleast one player must be in the channel on server start, and atleast one person online for invite to work
+# Default: 0 - Disable
+# 1 - Enable
+# irc.ajchan
+# Channel to join if above is Enabled.
+#
+irc.ajoin = 0
+irc.ajchan = "world"
+
+##################################################
+# irc.online.result
+# Maximum number of results per line for the online command
+#
+irc.online.result = 30
+
+##################################################
+# chat.*** (Defineable Strings) (maybe more in future)
+# wow_* - String is displayed in IRC channel
+# irc_* - String is displayed in WOW channel
+# Options: $Name, $Level, $Class, $Msg, $GM (not all options work in every string)
+#
+chat.wow_irc = "<WoW>[$Name($Level)[$Class]] $Msg"
+chat.irc_wow = "<IRC>[$Name]: $Msg"
+chat.join_wow = "12>>04 $GM$Name Joined The $Channel Channel!"
+chat.join_irc = "[$Name]: Has Joined IRC!"
+chat.leave_wow = "12<<04 $GM$Name Left The $Channel Channel!"
+chat.leave_irc = "[$Name]: Has Left IRC!"
+chat.change_nick = "<> $Name Is Now Known As $NewName!"
+
+##################################################
+# Botmask
+# This defines what the bot announces, if its 0 everything is disabled
+# simply add the values of the elements you want to create this mask.
+# Example: WoW join/leaves are 1 and IRC join/leaves are 2, if you want both of these active then the BotMask is 3.
+# (1)Display WoW Chan Join/Leaves In IRC
+# (2)Display IRC Chan Join/Leaves/NickChanges In WoW
+# (4)Display Unknown Command Message When Trigger Is Used And No Command Exists
+# (8)Announce Security Level > 0 As GM At Login
+# (16)Announce GM In GM ON State AS GM At Login
+# (32)Return Errors To Notice. (If disabled then default is Private Message)
+# (64)Display WoW Status Messages (Levels/Deaths)
+# (128)Display Nick Changes From IRC In WOW
+# (256)Display WoW Announces/Notifies In IRC
+# (512)Do Not Let Players Use Commands On Higher GM Level Players
+# (1024)Enable Ticket Annoucemnt
+# (2048)Display Warden penalties
+#
+# Tickets Botmask
+# (1) Announce Created Tickets.
+# (2) Announce Updated Tickets.
+# (4) Announce Abandoned Tickets.
+# (8) Announce Lag Reports.
+# (16) Announce Tickets updated by Gms. (Close ,Assigned ,Unassigned and ect..)
+#
+
+Botmask = 0
+Ticketmask = 0
+
+##################################################
+# irc.gmlog
+# Minimum GM level to not show login/pass info in IRC logs
+# irc.logfile.prefix
+# The prefix of the IRC logfile. Directories can be added here.
+# Example: "IRC/IRC_" outputs IRC_YYYY-MM-DD.log to the IRC subdirectory in your logs dir
+# irc.logchannel
+# Specefies the channel where logged output gets broadcasted.
+# Default: "" (none)
+# irc.logchannelpw
+# The password for the log channel.
+# irc.logmask
+# Bitmask, see Botmask for explanation. Determines what gets logged to the logchannel.
+# (0) Do not broadcast into logchannel.
+# (1) Broadcast IRC Commands into logchannel.
+# (2) Broadcast Ingame GM Commands into logchannel.
+# (3) Broadcast both IRC Commands and GM Commands into logchannel.
+irc.gmlog = 0
+irc.logfile.prefix = "IRC_"
+irc.logchannel = ""
+irc.logchannelpw = ""
+irc.logmask = 3
+
+##################################################
+# irc.fun.games (Experimental/Under Development)
+# Enable TriniChat Games
+# Default: 0 - Disable
+# 1 - Enable
+#
+irc.fun.games = 0
+
+##################################################
+# irc.gm#
+# GM tag to append to (GM onjoin / online command) IRC color codes are acceptable
+#
+irc.gm1 = "[Moderator]"
+irc.gm2 = "[GameMaster]"
+irc.gm3 = "[Developer]"
+irc.gm4 = "[Owner]"
+
+###################################################################################################
+#
+

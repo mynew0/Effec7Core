@@ -31,15 +31,11 @@ Script Data End */
 enum Spells
 {
     SPELL_BANE                                = 48294,
-    H_SPELL_BANE                              = 59301,
     SPELL_DARK_SLASH                          = 48292,
     SPELL_FETID_ROT                           = 48291,
-    H_SPELL_FETID_ROT                         = 59300,
     SPELL_SCREAMS_OF_THE_DEAD                 = 51750,
     SPELL_SPIRIT_BURST                        = 48529,
-    H_SPELL_SPIRIT_BURST                      = 59305,
     SPELL_SPIRIT_STRIKE                       = 48423,
-    H_SPELL_SPIRIT_STRIKE                     = 59304,
     SPELL_ANCESTORS_VENGEANCE                 = 16939,
 
     SPELL_SUMMON_AVENGING_SPIRIT              = 48592,
@@ -48,8 +44,7 @@ enum Spells
     SPELL_CHANNEL_SPIRIT_TO_YMIRON            = 48316,
     SPELL_CHANNEL_YMIRON_TO_SPIRIT            = 48307,
 
-    SPELL_SPIRIT_FOUNT                        = 48380,
-    H_SPELL_SPIRIT_FOUNT                      = 59320
+    SPELL_SPIRIT_FOUNT                        = 48380
 };
 
 //not in db
@@ -107,6 +102,7 @@ public:
     {
         boss_ymironAI(Creature* creature) : BossAI(creature, DATA_KING_YMIRON)
         {
+            Initialize();
             for (int i = 0; i < 4; ++i)
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
@@ -116,6 +112,35 @@ public:
                 m_uiActiveOrder[i] = m_uiActiveOrder[r];
                 m_uiActiveOrder[r] = temp;
             }
+        }
+
+        void Initialize()
+        {
+            m_bIsWalking = false;
+            m_bIsPause = false;
+            m_bIsActiveWithBJORN = false;
+            m_bIsActiveWithHALDOR = false;
+            m_bIsActiveWithRANULF = false;
+            m_bIsActiveWithTORGYN = false;
+            kingsBane = true;
+
+            m_uiFetidRot_Timer = urand(8000, 13000);
+            m_uiBane_Timer = urand(18000, 23000);
+            m_uiDarkSlash_Timer = urand(28000, 33000);
+            m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(60000, 45000);
+            m_uiPause_Timer = 0;
+
+            m_uiAbility_BJORN_Timer = 0;
+            m_uiAbility_HALDOR_Timer = 0;
+            m_uiAbility_RANULF_Timer = 0;
+            m_uiAbility_TORGYN_Timer = 0;
+
+            m_uiActivedNumber = 0;
+            m_uiHealthAmountModifier = 1;
+            m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
+
+            m_uiActivedCreatureGUID = 0;
+            m_uiOrbGUID = 0;
         }
 
         bool m_bIsWalking;
@@ -149,31 +174,7 @@ public:
         void Reset() override
         {
             _Reset();
-            m_bIsWalking = false;
-            m_bIsPause = false;
-            m_bIsActiveWithBJORN = false;
-            m_bIsActiveWithHALDOR = false;
-            m_bIsActiveWithRANULF = false;
-            m_bIsActiveWithTORGYN = false;
-            kingsBane = true;
-
-            m_uiFetidRot_Timer            = urand(8000, 13000);
-            m_uiBane_Timer                = urand(18000, 23000);
-            m_uiDarkSlash_Timer           = urand(28000, 33000);
-            m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(60000, 45000);
-            m_uiPause_Timer               = 0;
-
-            m_uiAbility_BJORN_Timer  = 0;
-            m_uiAbility_HALDOR_Timer = 0;
-            m_uiAbility_RANULF_Timer = 0;
-            m_uiAbility_TORGYN_Timer = 0;
-
-            m_uiActivedNumber        = 0;
-            m_uiHealthAmountModifier = 1;
-            m_uiHealthAmountMultipler = DUNGEON_MODE(20, 25);
-
-            m_uiActivedCreatureGUID = 0;
-            m_uiOrbGUID = 0;
+            Initialize();
         }
 
         void EnterCombat(Unit* /*who*/) override
@@ -278,7 +279,7 @@ public:
                     if (Creature* temp = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand32() % 10, -330.0f + rand32() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
                         temp->SetSpeed(MOVE_RUN, 0.4f);
-                        temp->CastSpell(temp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
+                        temp->CastSpell(temp, SPELL_SPIRIT_FOUNT, true);
                         temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         temp->SetDisplayId(11686);
                         m_uiOrbGUID = temp->GetGUID();

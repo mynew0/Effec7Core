@@ -1,4 +1,7 @@
+
 ## Effec7Core
+
+# ![logo](http://www.trinitycore.org/f/public/style_images/1_trinitycore.png) TrinityCore
 
 ## Introduction
 Hello! I'm really happy to introduce you to this World of Warcraft:Wrath of the Lich King *MMORPG* Emulator.
@@ -18,7 +21,7 @@ Effec7Core is a modified Trinitycore (*MMORPG FRAMEWORK based mostly in C++*) fo
 + Platform: Linux, Windows or Mac
 + Processor with SSE2 support
 + Boost ≥ 1.49
-+ MySQL ≥ 5.1.0 (included for Windows)
++ MySQL ≥ 5.1.0
 + CMake ≥ 2.8.11.2 / 2.8.9 (Windows / Linux)
 + OpenSSL ≥ 1.0.0
 + GCC ≥ 4.7.2 (Linux only)

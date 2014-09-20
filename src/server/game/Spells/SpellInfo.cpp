@@ -853,6 +853,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
         Effects[i] = SpellEffectInfo(spellEntry, this, i);
 
     ChainEntry = NULL;
+    ExplicitTargetMask = 0;
 }
 
 SpellInfo::~SpellInfo()
@@ -1870,6 +1871,11 @@ AuraStateType SpellInfo::GetAuraState() const
         case 71465: // Divine Surge
         case 50241: // Evasive Charges
             return AURA_STATE_UNKNOWN22;
+        case 35325: // Glowing Blood
+        case 35328: // Lambent Blood
+        case 35329: // Vibrant Blood
+        case 35331: // Black Blood
+            return AURA_STATE_FAERIE_FIRE;
         default:
             break;
     }

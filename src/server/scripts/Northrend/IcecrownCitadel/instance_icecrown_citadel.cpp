@@ -59,7 +59,7 @@ DoorData const doorData[] =
     {GO_ORANGE_PLAGUE_MONSTER_ENTRANCE,      DATA_FESTERGUT,             DOOR_TYPE_ROOM,       BOUNDARY_E   },
     {GO_GREEN_PLAGUE_MONSTER_ENTRANCE,       DATA_ROTFACE,               DOOR_TYPE_ROOM,       BOUNDARY_E   },
     {GO_SCIENTIST_ENTRANCE,                  DATA_PROFESSOR_PUTRICIDE,   DOOR_TYPE_ROOM,       BOUNDARY_E   },
-    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_ROOM,       BOUNDARY_S   },
+    {GO_CRIMSON_HALL_DOOR,                   DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE,    BOUNDARY_S   },
     {GO_BLOOD_ELF_COUNCIL_DOOR,              DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE,    BOUNDARY_W   },
     {GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT,        DATA_BLOOD_PRINCE_COUNCIL,  DOOR_TYPE_PASSAGE,    BOUNDARY_E   },
     {GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01, DATA_BLOOD_QUEEN_LANA_THEL, DOOR_TYPE_ROOM,       BOUNDARY_S   },
@@ -115,6 +115,7 @@ class instance_icecrown_citadel : public InstanceMapScript
         {
             instance_icecrown_citadel_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
+                SetHeaders(DataHeader);
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
                 TeamInInstance = 0;
@@ -173,6 +174,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                 UpperSpireTeleporterActiveState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                FrozenBolvarGUID = 0;
+                PillarsChainedGUID = 0;
+                PillarsUnchainedGUID = 0;
+                // TW
+                CrimsonHallBloodFallenKillCount = 0;
+                CrimsonHallDoorGUID = 0;
             }
 
             // A function to help reduce the number of lines for teleporter management.
@@ -493,8 +500,23 @@ class instance_icecrown_citadel : public InstanceMapScript
                             if (Creature* boss = instance->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
                                 boss->AI()->DoAction(ACTION_START_FROSTWYRM);
                         }
-                        break;
                     }
+                        break;
+                    case NPC_DARKFALLEN_ARCHMAGE:
+                    case NPC_DARKFALLEN_NOBLE:
+                    case NPC_DARKFALLEN_ADVISOR:
+                    case NPC_DARKFALLEN_BLOODKNIGHT:
+                        // Save the kill counts to database in case the server crashes while we still haven't cleared mobs.
+                        // There's probably a better way to deal with this.
+                        CrimsonHallBloodFallenKillCount++;
+                        if (CrimsonHallBloodFallenKillCount < 4)
+                            SaveToDB();
+                        else if (CrimsonHallBloodFallenKillCount == 4) // If the kill count equals 4, it means we cleared the first group.
+                        {
+                            HandleGameObject(CrimsonHallDoorGUID, true);
+                            SaveToDB();
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -511,7 +533,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_ORANGE_PLAGUE_MONSTER_ENTRANCE:
                     case GO_GREEN_PLAGUE_MONSTER_ENTRANCE:
                     case GO_SCIENTIST_ENTRANCE:
-                    case GO_CRIMSON_HALL_DOOR:
                     case GO_BLOOD_ELF_COUNCIL_DOOR:
                     case GO_BLOOD_ELF_COUNCIL_DOOR_RIGHT:
                     case GO_DOODAD_ICECROWN_BLOODPRINCE_DOOR_01:
@@ -685,6 +706,13 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (GetBossState(DATA_THE_LICH_KING) == DONE)
                             go->SetRespawnTime(7 * DAY);
                         break;
+                    // TW
+                    case GO_CRIMSON_HALL_DOOR:
+                        AddDoor(go, true);
+                        CrimsonHallDoorGUID = go->GetGUID();
+                        if (CrimsonHallBloodFallenKillCount == 4)
+                            go->SetGoState(GO_STATE_ACTIVE);
+                        break;
                     default:
                         break;
                 }
@@ -769,20 +797,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return DeathbringerSaurfangEventGUID;
                     case GO_SAURFANG_S_DOOR:
                         return DeathbringerSaurfangDoorGUID;
-                    case GO_SCOURGE_TRANSPORTER_LICHKING:
-                        return TeleporterLichKingGUID;
-                    case GO_SCOURGE_TRANSPORTER_UPPERSPIRE:
-                        return TeleporterUpperSpireGUID;
-                    case GO_SCOURGE_TRANSPORTER_LIGHTSHAMMER:
-                        return TeleporterLightsHammerGUID;
-                    case GO_SCOURGE_TRANSPORTER_RAMPART:
-                        return TeleporterRampartsGUID;
-                    case GO_SCOURGE_TRANSPORTER_DEATHBRINGER:
-                        return TeleporterDeathBringerGUID;
-                    case GO_SCOURGE_TRANSPORTER_ORATORY:
-                        return TeleporterOratoryGUID;
-                    case GO_SCOURGE_TRANSPORTER_SINDRAGOSA:
-                        return TeleporterSindragosaGUID;
                     case DATA_FESTERGUT:
                         return FestergutGUID;
                     case DATA_ROTFACE:
@@ -830,6 +844,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ArthasPlatformGUID;
                     case DATA_TERENAS_MENETHIL:
                         return TerenasMenethilGUID;
+                    case DATA_CRIMSON_HALL_DOOR:
+                        return CrimsonHallDoorGUID;
                     default:
                         break;
                 }
@@ -907,7 +923,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                             {
                                 if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
                                     SetTeleporterState(teleporter, true);
-
+                                break;
+                            }
+                            case IN_PROGRESS:
+                            {
+                                if (GameObject* teleporter = instance->GetGameObject(TeleporterDeathBringerGUID))
+                                    SetTeleporterState(teleporter, false);
                                 break;
                             }
                             default:
@@ -1122,7 +1143,11 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_UPPERSPIRE_TELE_ACT:
                         UpperSpireTeleporterActiveState = data;
                         if (UpperSpireTeleporterActiveState == DONE)
+                        {
+                            if (GameObject* go = instance->GetGameObject(TeleporterUpperSpireGUID))
+                                SetTeleporterState(go, true);
                             SaveToDB();
+                        }
                         break;
                     default:
                         break;
@@ -1324,64 +1349,35 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
             }
 
-            std::string GetSaveData() override
+            void WriteSaveDataMore(std::ostringstream& data) override
             {
-                OUT_SAVE_INST_DATA;
-
-                std::ostringstream saveStream;
-                saveStream << "I C " << GetBossSaveData() << HeroicAttempts << ' '
-                    << ColdflameJetsState << ' ' << BloodQuickeningState << ' ' << BloodQuickeningMinutes << ' ' << UpperSpireTeleporterActiveState;
-
-                OUT_SAVE_INST_DATA_COMPLETE;
-                return saveStream.str();
+                data << HeroicAttempts << ' '
+                    << ColdflameJetsState << ' '
+                    << BloodQuickeningState << ' '
+                    << BloodQuickeningMinutes << ' '
+                    << UpperSpireTeleporterActiveState << ' ' << CrimsonHallBloodFallenKillCount;
             }
 
-            void Load(const char* str) override
+            void ReadSaveDataMore(std::istringstream& data) override
             {
-                if (!str)
-                {
-                    OUT_LOAD_INST_DATA_FAIL;
-                    return;
-                }
+                data >> HeroicAttempts;
 
-                OUT_LOAD_INST_DATA(str);
-
-                char dataHead1, dataHead2;
-
-                std::istringstream loadStream(str);
-                loadStream >> dataHead1 >> dataHead2;
-
-                if (dataHead1 == 'I' && dataHead2 == 'C')
-                {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-                    loadStream >> HeroicAttempts;
-
-                    uint32 temp = 0;
-                    loadStream >> temp;
-                    if (temp == IN_PROGRESS)
-                        ColdflameJetsState = NOT_STARTED;
-                    else
-                        ColdflameJetsState = temp ? DONE : NOT_STARTED;
-
-                    loadStream >> temp;
-                    BloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
-                    loadStream >> BloodQuickeningMinutes;
-
-                    loadStream >> temp;
-                    UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
-                }
+                uint32 temp = 0;
+                data >> temp;
+                if (temp == IN_PROGRESS)
+                    ColdflameJetsState = NOT_STARTED;
                 else
-                    OUT_LOAD_INST_DATA_FAIL;
+                    ColdflameJetsState = temp ? DONE : NOT_STARTED;
 
-                OUT_LOAD_INST_DATA_COMPLETE;
+                data >> temp;
+                BloodQuickeningState = temp ? DONE : NOT_STARTED;   // DONE means finished (not success/fail)
+                data >> BloodQuickeningMinutes;
+
+                data >> temp;
+                UpperSpireTeleporterActiveState = temp ? DONE : NOT_STARTED;
+
+                    data >> temp;
+                    CrimsonHallBloodFallenKillCount = temp;
             }
 
             void Update(uint32 diff) override
@@ -1571,6 +1567,10 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
+
+            // TW
+            uint32 CrimsonHallBloodFallenKillCount;
+            uint64 CrimsonHallDoorGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

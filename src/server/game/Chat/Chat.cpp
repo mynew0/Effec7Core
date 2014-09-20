@@ -35,6 +35,7 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#include "IRCClient.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -366,6 +367,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                     (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
                     GUID_LOPART(guid));
 
+
                 // Database Logging
                 uint64 sel_guid = player->GetTarget();
                 PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GM);
@@ -379,6 +381,16 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                 sprintf(selection, "%s: %s (GUID: %u)", GetLogNameForGuid(sel_guid), (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
                 stmt->setString(4, selection);
                 CharacterDatabase.Execute(stmt);
+
+                if ((sIRC->logmask & 2) != 0)
+                    {
+                        std::string logchan = "#";
+                        logchan += sIRC->logchan;
+                        std::stringstream ss;
+                        ss << sIRC->iLog.GetLogDateTimeStr() << ": [ " << player->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target Guid: [" << GUID_LOPART(guid) << "]";
+                        sIRC->Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
+                    }
+
             }
         }
         // some commands have custom error messages. Don't send the default one in these cases.
@@ -926,6 +938,38 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     return NULL;
 }
 
+char const *fmtstring (char const *format, ...)
+{
+    va_list        argptr;
+    #define    MAX_FMT_STRING    32000
+    static char        temp_buffer[MAX_FMT_STRING];
+    static char        string[MAX_FMT_STRING];
+    static int        index = 0;
+    char    *buf;
+    int len;
+
+    va_start(argptr, format);
+    vsnprintf(temp_buffer,MAX_FMT_STRING, format, argptr);
+    va_end(argptr);
+
+    len = strlen(temp_buffer);
+
+    if (len >= MAX_FMT_STRING)
+        return "ERROR";
+
+    if (len + index >= MAX_FMT_STRING-1)
+    {
+        index = 0;
+    }
+
+    buf = &string[index];
+    memcpy(buf, temp_buffer, len+1);
+
+    index += len + 1;
+
+    return buf;
+}
+
 GameObject* ChatHandler::GetNearbyGameObject()
 {
     if (!m_session)
@@ -1162,7 +1206,7 @@ bool ChatHandler::extractPlayerTarget(char* args, Player** player, uint64* playe
     }
     else
     {
-        Player* pl = getSelectedPlayer();
+        Player* pl = getSelectedPlayerOrSelf();
         // if allowed player pointer
         if (player)
             *player = pl;

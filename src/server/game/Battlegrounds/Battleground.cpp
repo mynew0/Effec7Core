@@ -664,17 +664,6 @@ void Battleground::RemoveAuraOnTeam(uint32 SpellID, uint32 TeamID)
             player->RemoveAura(SpellID);
 }
 
-void Battleground::YellToAll(Creature* creature, char const* text, uint32 language)
-{
-    for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-        if (Player* player = _GetPlayer(itr, "YellToAll"))
-        {
-            WorldPacket data;
-            ChatHandler::BuildChatPacket(data, CHAT_MSG_MONSTER_YELL, Language(language), creature, player, text);
-            player->SendDirectMessage(&data);
-        }
-}
-
 void Battleground::RewardHonorToTeam(uint32 Honor, uint32 TeamID)
 {
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
@@ -720,8 +709,6 @@ void Battleground::EndBattleground(uint32 winner)
     RemoveFromBGFreeSlotQueue();
 
     int32 winmsg_id = 0;
-    
-    int32 level = GetMaxLevel() / 10;
 
     if (winner == ALLIANCE)
     {
@@ -730,9 +717,6 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_ALLIANCE_WINS);                // alliance wins sound
 
         SetWinner(BG_TEAM_ALLIANCE);
-        
-        if (isBattleground())
-            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (0, %d, NOW());", level);
     }
     else if (winner == HORDE)
     {
@@ -741,13 +725,52 @@ void Battleground::EndBattleground(uint32 winner)
         PlaySoundToAll(SOUND_HORDE_WINS);                   // horde wins sound
 
         SetWinner(BG_TEAM_HORDE);
-        
-        if (isBattleground())
-            CharacterDatabase.PQuery("INSERT INTO pvpstats_faction (faction, level, date) VALUES (1, %d, NOW());", level);
     }
     else
     {
         SetWinner(BG_TEAM_NEUTRAL);
+    }
+
+    if (isBattleground() && BattlegroundMgr::IsBGWeekend(GetTypeID()) && !IsRandom() && (winner == ALLIANCE || winner == HORDE))
+    {
+        switch (GetTypeID())
+        {
+            case BATTLEGROUND_AB:
+                CastSpellOnTeam(SPELL_AB_QUEST_REWARD, winner);
+                break;
+            case BATTLEGROUND_AV:
+                CastSpellOnTeam(SPELL_AV_QUEST_REWARD, winner);
+                break;
+            case BATTLEGROUND_EY:
+                CastSpellOnTeam(SPELL_EY_QUEST_REWARD, winner);
+                break;
+            case BATTLEGROUND_WS:
+                CastSpellOnTeam(SPELL_WS_QUEST_REWARD, winner);
+                break;
+            default:
+                break;
+        }
+    }
+
+    PreparedStatement* stmt = nullptr;
+    uint64 battlegroundId = 1;
+    if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+    {
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PVPSTATS_MAXID);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            battlegroundId = fields[0].GetUInt64() + 1;
+        }
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_BATTLEGROUND);
+        stmt->setUInt64(0, battlegroundId);
+        stmt->setUInt8(1, GetWinner());
+        stmt->setUInt8(2, m_BracketId + 1);
+        stmt->setUInt8(3, GetTypeID(true));
+        CharacterDatabase.Execute(stmt);
     }
 
     SetStatus(STATUS_WAIT_LEAVE);
@@ -789,6 +812,28 @@ void Battleground::EndBattleground(uint32 winner)
         uint32 loser_kills = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_LOSER_HONOR_FIRST);
         uint32 winner_arena = player->GetRandomWinner() ? sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_LAST) : sWorld->getIntConfig(CONFIG_BG_REWARD_WINNER_ARENA_FIRST);
 
+        if (isBattleground() && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_STORE_STATISTICS_ENABLE))
+        {
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PVPSTATS_PLAYER);
+            BattlegroundScoreMap::const_iterator score = PlayerScores.find(player->GetGUIDLow());
+
+            stmt->setUInt32(0, battlegroundId);
+            stmt->setUInt32(1, player->GetGUIDLow());
+            stmt->setUInt32(2, score->second->GetKillingBlows());
+            stmt->setUInt32(3, score->second->GetDeaths());
+            stmt->setUInt32(4, score->second->GetHonorableKills());
+            stmt->setUInt32(5, score->second->GetBonusHonor());
+            stmt->setUInt32(6, score->second->GetDamageDone());
+            stmt->setUInt32(7, score->second->GetHealingDone());
+            stmt->setUInt32(8, score->second->GetAttr1());
+            stmt->setUInt32(9, score->second->GetAttr2());
+            stmt->setUInt32(10, score->second->GetAttr3());
+            stmt->setUInt32(11, score->second->GetAttr4());
+            stmt->setUInt32(12, score->second->GetAttr5());
+
+            CharacterDatabase.Execute(stmt);
+        }
+
         // Reward winner team
         if (team == winner)
         {
@@ -802,9 +847,6 @@ void Battleground::EndBattleground(uint32 winner)
             }
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
-            
-            if (isBattleground())
-                CharacterDatabase.PQuery("INSERT INTO pvpstats_players (character_guid, level, date) VALUES (%d, %d, NOW());", player->GetGUID(), level);
         }
         else
         {

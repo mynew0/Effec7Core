@@ -182,14 +182,20 @@ class boss_blood_council_controller : public CreatureScript
         {
             boss_blood_council_controllerAI(Creature* creature) : BossAI(creature, DATA_BLOOD_PRINCE_COUNCIL)
             {
+                Initialize();
+            }
+
+            void Initialize()
+            {
+                _invocationStage = 0;
+                _resetCounter = 0;
             }
 
             void Reset() override
             {
                 events.Reset();
                 me->SetReactState(REACT_PASSIVE);
-                _invocationStage = 0;
-                _resetCounter = 0;
+                Initialize();
 
                 instance->SetBossState(DATA_BLOOD_PRINCE_COUNCIL, NOT_STARTED);
             }
@@ -261,6 +267,9 @@ class boss_blood_council_controller : public CreatureScript
 
                 if (Creature* valanar = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PRINCE_VALANAR_GUID)))
                     valanar->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+                // This is now necessary due to the way the door is handled.
+                instance->HandleGameObject(instance->GetData64(DATA_CRIMSON_HALL_DOOR), true); 
             }
 
             void JustDied(Unit* killer) override
@@ -504,7 +513,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                 }
             }
 
-            bool CheckRoom()
+            bool CheckInRoom() override
             {
                 if (!CheckBoundary(me))
                 {
@@ -523,7 +532,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckRoom())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -723,7 +732,7 @@ class boss_prince_taldaram_icc : public CreatureScript
                 }
             }
 
-            bool CheckRoom()
+            bool CheckInRoom() override
             {
                 if (!CheckBoundary(me))
                 {
@@ -742,7 +751,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckRoom())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -962,7 +971,7 @@ class boss_prince_valanar_icc : public CreatureScript
                 }
             }
 
-            bool CheckRoom()
+            bool CheckInRoom() override
             {
                 if (!CheckBoundary(me))
                 {
@@ -981,7 +990,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                if (!UpdateVictim() || !CheckRoom())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -1142,6 +1151,7 @@ class npc_ball_of_flame : public CreatureScript
             npc_ball_of_flameAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
                 _despawnTimer = 0;
+                _chaseGUID = 0;
             }
 
             void Reset() override
@@ -1224,7 +1234,12 @@ class npc_kinetic_bomb : public CreatureScript
 
         struct npc_kinetic_bombAI : public ScriptedAI
         {
-            npc_kinetic_bombAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_kinetic_bombAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _x = 0.f;
+                _y = 0.f;
+                _groundZ = 0.f;
+            }
 
             void Reset() override
             {

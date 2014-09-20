@@ -46,8 +46,10 @@
 #include "CliRunnable.h"
 #include "SystemConfig.h"
 #include "WorldSocket.h"
+#include "WorldSocketMgr.h"
 
 using namespace boost::program_options;
+#include "IRCClient.h"
 
 #ifndef _TRINITY_CORE_CONFIG
     #define _TRINITY_CORE_CONFIG  "worldserver.conf"
@@ -82,7 +84,7 @@ uint32 realmID;                                             ///< Id of the realm
 
 void SignalHandler(const boost::system::error_code& error, int signalNumber);
 void FreezeDetectorHandler(const boost::system::error_code& error);
-AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService);
+AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService);
 bool StartDB();
 void StopDB();
 void WorldUpdateLoop();
@@ -203,7 +205,7 @@ extern int main(int argc, char** argv)
     }
 
     // Start the Remote Access port (acceptor) if enabled
-    AsyncAcceptor<RASession>* raAcceptor = nullptr;
+    AsyncAcceptor* raAcceptor = nullptr;
     if (sConfigMgr->GetBoolDefault("Ra.Enable", false))
         raAcceptor = StartRaSocketAcceptor(_ioService);
 
@@ -214,14 +216,20 @@ extern int main(int argc, char** argv)
         soapThread = new std::thread(TCSoapThread, sConfigMgr->GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(sConfigMgr->GetIntDefault("SOAP.Port", 7878)));
     }
 
+    // Start up TriniChat
+    boost::thread* triniChatThread = nullptr;
+    if (sIRC->Active == 1)
+    {
+        triniChatThread = new boost::thread(TrinityChatThread);
+    }
+    else
+        TC_LOG_ERROR("misc", "*** TriniChat Is Disabled. *");
+
     // Launch the worldserver listener socket
     uint16 worldPort = uint16(sWorld->getIntConfig(CONFIG_PORT_WORLD));
     std::string worldListener = sConfigMgr->GetStringDefault("BindIP", "0.0.0.0");
-    bool tcpNoDelay = sConfigMgr->GetBoolDefault("Network.TcpNodelay", true);
 
-    AsyncAcceptor<WorldSocket> worldAcceptor(_ioService, worldListener, worldPort, tcpNoDelay);
-
-    sScriptMgr->OnNetworkStart();
+    sWorldSocketMgr.StartNetwork(_ioService, worldListener, worldPort);
 
     // Set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET flag = flag & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
@@ -252,6 +260,8 @@ extern int main(int argc, char** argv)
     // unload battleground templates before different singletons destroyed
     sBattlegroundMgr->DeleteAllBattlegrounds();
 
+    sWorldSocketMgr.StopNetwork();
+
     sInstanceSaveMgr->Unload();
     sMapMgr->UnloadAll();                     // unload all grids (including locked in memory)
     sObjectAccessor->UnloadAll();             // unload 'i_player2corpse' storage and remove from world
@@ -266,6 +276,16 @@ extern int main(int argc, char** argv)
     {
         soapThread->join();
         delete soapThread;
+    }
+
+    // Clean TrinityChat
+    if (triniChatThread != nullptr)
+    {
+        // for some reason on win32 "sIRC->Active && !World::IsStopped()" fail to go false in time and the thread is stalled
+        // so we make sure the condition to live will fail from here, since we are shutting down...
+        sIRC->Active = 0;
+        triniChatThread->join();
+        delete triniChatThread;
     }
 
     if (raAcceptor != nullptr)
@@ -379,12 +399,14 @@ void FreezeDetectorHandler(const boost::system::error_code& error)
     }
 }
 
-AsyncAcceptor<RASession>* StartRaSocketAcceptor(boost::asio::io_service& ioService)
+AsyncAcceptor* StartRaSocketAcceptor(boost::asio::io_service& ioService)
 {
     uint16 raPort = uint16(sConfigMgr->GetIntDefault("Ra.Port", 3443));
     std::string raListener = sConfigMgr->GetStringDefault("Ra.IP", "0.0.0.0");
 
-    return new AsyncAcceptor<RASession>(ioService, raListener, raPort);
+    AsyncAcceptor* acceptor = new AsyncAcceptor(ioService, raListener, raPort);
+    acceptor->AsyncAccept<RASession>();
+    return acceptor;
 }
 
 /// Initialize connection to the databases

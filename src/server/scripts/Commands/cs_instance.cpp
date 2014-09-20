@@ -29,6 +29,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "MapManager.h"
 #include "Player.h"
+#include "Language.h"
 
 class instance_commandscript : public CommandScript
 {
@@ -43,8 +44,8 @@ public:
             { "unbind",    rbac::RBAC_PERM_COMMAND_INSTANCE_UNBIND,    false, &HandleInstanceUnbindCommand,       "", NULL },
             { "stats",     rbac::RBAC_PERM_COMMAND_INSTANCE_STATS,     true,  &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",  rbac::RBAC_PERM_COMMAND_INSTANCE_SAVEDATA,  false, &HandleInstanceSaveDataCommand,     "", NULL },
-            { "setdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_SETDATA,   false, &HandleInstanceSetDataCommand,      "", NULL },
-            { "getdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_GETDATA,   false, &HandleInstanceGetDataCommand,      "", NULL },
+            { "setdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_SETDATA,   true, &HandleInstanceSetDataCommand,      "", NULL },
+            { "getdata",   rbac::RBAC_PERM_COMMAND_INSTANCE_GETDATA,   true, &HandleInstanceGetDataCommand,      "", NULL },
             { NULL,        0,                                          false, NULL,                               "", NULL }
         };
 
@@ -83,11 +84,11 @@ public:
             {
                 InstanceSave* save = itr->second.save;
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
-                handler->PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                 counter++;
             }
         }
-        handler->PSendSysMessage("player binds: %d", counter);
+        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_PLAYER_BINDS, counter);
 
         counter = 0;
         if (Group* group = player->GetGroup())
@@ -99,12 +100,12 @@ public:
                 {
                     InstanceSave* save = itr->second.save;
                     std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
-                    handler->PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_INFO, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                     counter++;
                 }
             }
         }
-        handler->PSendSysMessage("group binds: %d", counter);
+        handler->PSendSysMessage(LANG_COMMAND_LIST_BIND_GROUP_BINDS, counter);
 
         return true;
     }
@@ -142,7 +143,7 @@ public:
                 if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
                 {
                     std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
-                    handler->PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                    handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBINDING, itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                     player->UnbindInstance(itr, Difficulty(i));
                     counter++;
                 }
@@ -150,18 +151,18 @@ public:
                     ++itr;
             }
         }
-        handler->PSendSysMessage("instances unbound: %d", counter);
+        handler->PSendSysMessage(LANG_COMMAND_INST_UNBIND_UNBOUND, counter);
 
         return true;
     }
 
     static bool HandleInstanceStatsCommand(ChatHandler* handler, char const* /*args*/)
     {
-        handler->PSendSysMessage("instances loaded: %d", sMapMgr->GetNumInstances());
-        handler->PSendSysMessage("players in instances: %d", sMapMgr->GetNumPlayersInInstances());
-        handler->PSendSysMessage("instance saves: %d", sInstanceSaveMgr->GetNumInstanceSaves());
-        handler->PSendSysMessage("players bound: %d", sInstanceSaveMgr->GetNumBoundPlayersTotal());
-        handler->PSendSysMessage("groups bound: %d", sInstanceSaveMgr->GetNumBoundGroupsTotal());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_LOADED_INST, sMapMgr->GetNumInstances());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERS_IN, sMapMgr->GetNumPlayersInInstances());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_SAVES, sInstanceSaveMgr->GetNumInstanceSaves());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_PLAYERSBOUND, sInstanceSaveMgr->GetNumBoundPlayersTotal());
+        handler->PSendSysMessage(LANG_COMMAND_INST_STAT_GROUPSBOUND, sInstanceSaveMgr->GetNumBoundGroupsTotal());
 
         return true;
     }
@@ -172,14 +173,14 @@ public:
         Map* map = player->GetMap();
         if (!map->IsDungeon())
         {
-            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->PSendSysMessage(LANG_NOT_DUNGEON);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
         if (!((InstanceMap*)map)->GetInstanceScript())
         {
-            handler->PSendSysMessage("Map has no instance data.");
+            handler->PSendSysMessage(LANG_NO_INSTANCE_DATA);
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -194,41 +195,76 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
+        char* param1 = strtok((char*)args, " ");
+        char* param2 = strtok(NULL, " ");
+        char* param3 = strtok(NULL, " ");
+
+        int32 field = 0;
+        int32 value = 0;
+        uint64 playerGuid = 0;
+
+        std::string playerName;
+
+        if (!param2 || !param1)
         {
-            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->PSendSysMessage("Missing parameters.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!((InstanceMap*)map)->GetInstanceScript())
+        if (!param3)
         {
-            handler->PSendSysMessage("Map has no instance data.");
+            value = atoi(param2);
+            field = atoi(param1);
+            if (handler->GetSession())
+                playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
+        }
+        else
+        {
+            value = atoi(param2);
+            field = atoi(param1);
+            playerName = param3;
+
+            if (normalizePlayerName(playerName))
+                if (Player* player = sObjectAccessor->FindPlayerByName(playerName))
+                    playerGuid = player->GetGUID();
+        }
+
+        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+        {
+            Map* map = player->GetMap();
+            if (!map->IsDungeon())
+            {
+                handler->PSendSysMessage("Map is not a dungeon.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!((InstanceMap*)map)->GetInstanceScript())
+            {
+                handler->PSendSysMessage("Map has no instance data.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (value > 5)
+            {
+                handler->PSendSysMessage("State index out of range.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
+            handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
+            return true;
+        }
+        else
+        {
+            handler->PSendSysMessage("Player not found.");
             handler->SetSentErrorMessage(true);
             return false;
         }
-
-        char* field_str = strtok((char*) args, " ");
-        char* value_str = strtok(NULL, "");
-
-        if (!field_str || !value_str)
-            return false;
-
-        int32 field = atoi(field_str);
-        int32 value = atoi(value_str);
-
-        if (value > 5)
-        {
-            handler->PSendSysMessage("State index out of range.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
-        handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
-        return true;
+        return false;
     }
 
     static bool HandleInstanceGetDataCommand(ChatHandler* handler, char const* args)
@@ -236,55 +272,92 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->GetSession()->GetPlayer();
-        Map* map = player->GetMap();
-        if (!map->IsDungeon())
-        {
-            handler->PSendSysMessage("Map is not a dungeon.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        char* param1 = strtok((char*)args, " ");
+        char* param2 = strtok(NULL, " ");
 
-        if (!((InstanceMap*)map)->GetInstanceScript())
-        {
-            handler->PSendSysMessage("Map has no instance data.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        int32 field = 0;
+        uint64 playerGuid = 0;
 
-        int32 field = atoi (args);
-
-        int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
+        std::string playerName;
         std::string output;
 
-        // Funky way to do this - improve if you can!
-        switch (value)
+        if (!param1)
         {
-            case NOT_STARTED:
-                output = "0 - (NOT_STARTED)";
-                break;
-            case IN_PROGRESS:
-                output = "1 - (IN_PROGRESS)";
-                break;
-            case FAIL:
-                output = "2 - (FAIL)";
-                break;
-            case DONE:
-                output = "3 - (DONE)";
-                break;
-            case SPECIAL:
-                output = "4 - (SPECIAL)";
-                break;
-            case TO_BE_DECIDED:
-                output = "5 - (TO_BE_DECIDED)";
-                break;
-            default: 
-                output = "Unknown";
-                break;
+            handler->PSendSysMessage("Missing parameters.");
+            handler->SetSentErrorMessage(true);
+            return false;
         }
 
-        handler->PSendSysMessage("Instance data for field %i is %s.", field, output.c_str());
-        return true;
+        if (!param2)
+        {
+            field = atoi(param1);
+            if (handler->GetSession())
+                playerGuid = handler->GetSession()->GetPlayer()->GetGUID();
+        }
+        else
+        {
+            field = atoi(param1);
+            playerName = param2;
+            
+            if (normalizePlayerName(playerName))
+                if (Player* player = sObjectAccessor->FindPlayerByName(playerName))
+                    playerGuid = player->GetGUID();
+        }
+
+        if (Player* player = sObjectAccessor->FindPlayer(playerGuid))
+        {
+            Map* map = player->GetMap();
+            if (!map->IsDungeon())
+            {
+                handler->PSendSysMessage("Map is not a dungeon.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (!((InstanceMap*)map)->GetInstanceScript())
+            {
+                handler->PSendSysMessage("Map has no instance data.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
+
+            // Funky way to do this - improve if you can!
+            switch (value)
+            {
+                case NOT_STARTED:
+                    output = "0 - (NOT_STARTED)";
+                    break;
+                case IN_PROGRESS:
+                    output = "1 - (IN_PROGRESS)";
+                    break;
+                case FAIL:
+                    output = "2 - (FAIL)";
+                    break;
+                case DONE:
+                    output = "3 - (DONE)";
+                    break;
+                case SPECIAL:
+                    output = "4 - (SPECIAL)";
+                    break;
+                case TO_BE_DECIDED:
+                    output = "5 - (TO_BE_DECIDED)";
+                    break;
+                default:
+                    break;
+            }
+
+            handler->PSendSysMessage("Instance data for field %i is %s.", field, output.c_str());
+            return true;
+        }
+        else
+        {
+            handler->PSendSysMessage("Player not found.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        return false;
     }
 };
 

@@ -27,15 +27,15 @@ set(scripts_STAT_SRCS
   Custom/TrialOfTheChampion/TW_boss_black_knight.cpp
   Custom/TrialOfTheChampion/TW_trial_of_the_champion.cpp
   Custom/Ulduar/TW_boss_thorim.cpp
-  Custom/Ulduar/TW_boss_mimiron.cpp
-  Custom/DynamicTeleporter.cpp
-  Custom/Transmog/Transmogrification.h
-  Custom/Transmog/Transmogrification.cpp
-  Custom/Transmog/Transmogrifier.cpp
-  Custom/IndividualRateSystem.cpp
-  Custom/1v1.cpp
   Custom/Spectator.cpp
+  Custom/IndividualRateSystem.cpp
+  Custom/DynamicTeleporter.cpp
+  Custom/1v1.cpp
+  Custom/Transmog/Transmogrification.cpp
+  Custom/Transmog/Transmogrification.h
+  Custom/Transmog/Transmogrifier.cpp
   ${scripts_STAT_SRCS}
+ 
 #  ${sources_Custom}
 )
 
