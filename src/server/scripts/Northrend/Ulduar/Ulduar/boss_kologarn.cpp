@@ -122,7 +122,7 @@ class boss_kologarn : public CreatureScript
             }
 
             Vehicle* vehicle;
-            uint64 eyebeamTarget;
+            ObjectGuid eyebeamTarget;
             bool left, right, _armDied, _ifLooks;
 
             uint32 _rubbleCount;
@@ -152,7 +152,7 @@ class boss_kologarn : public CreatureScript
                 _ifLooks = true;
                 _rubbleCount = 0;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                eyebeamTarget = 0;
+                eyebeamTarget.Clear();
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -259,11 +259,11 @@ class boss_kologarn : public CreatureScript
                 }
             }
 
-            uint64 GetGUID(int32 /*type = 0 */) const override
+            ObjectGuid GetGUID(int32 /*type = 0 */) const override
             {
                 if (DATA_EYEBEAM_TARGET)
                     return eyebeamTarget;
-                return 0;
+                return ObjectGuid::Empty;
             }
 
             void JustSummoned(Creature* summon) override
@@ -376,7 +376,7 @@ public:
         TW_npc_focused_eyebeamAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
-            kologarn = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_KOLOGARN));
+            kologarn = ObjectAccessor::GetCreature(*me, instance->GetGuidData(BOSS_KOLOGARN));
             if (me->GetEntry() == NPC_FOCUSED_EYEBEAM)
                 me->CastSpell(kologarn, SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT, true);
             else if (me->GetEntry() == NPC_FOCUSED_EYEBEAM_RIGHT)
@@ -424,7 +424,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                uint64 originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetData64(BOSS_KOLOGARN) : 0;
+                ObjectGuid originalCaster = caster->GetInstanceScript() ? caster->GetInstanceScript()->GetGuidData(BOSS_KOLOGARN) : ObjectGuid::Empty;
                 uint32 spellId = GetEffectValue();
                 for (uint8 i = 0; i < 5; ++i)
                     caster->CastSpell(caster, spellId, true, NULL, NULL, originalCaster);
@@ -762,7 +762,7 @@ public:
                 return;
 
             if (InstanceScript* instance = target->GetInstanceScript())
-                if (Creature* kologarn = ObjectAccessor::GetCreature(*target, instance->GetData64(BOSS_KOLOGARN)))
+                if (Creature* kologarn = ObjectAccessor::GetCreature(*target, instance->GetGuidData(BOSS_KOLOGARN)))
                     kologarn->GetAI()->SetData(DATA_IF_LOOKS_COULD_KILL, false);
         }
 

@@ -99,17 +99,17 @@ public:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
 
-        uint64 uiAshGUID;
-        uint64 uiAdaGUID;
-        uint64 uiArchmageArugalGUID;
+        ObjectGuid uiAshGUID;
+        ObjectGuid uiAdaGUID;
+        ObjectGuid uiArchmageArugalGUID;
 
-        uint64 DoorCourtyardGUID;
-        uint64 DoorSorcererGUID;
-        uint64 DoorArugalGUID;
+        ObjectGuid DoorCourtyardGUID;
+        ObjectGuid DoorSorcererGUID;
+        ObjectGuid DoorArugalGUID;
 
-        uint64 fryeGUID;
-        uint64 hummelGUID;
-        uint64 baxterGUID;
+        ObjectGuid fryeGUID;
+        ObjectGuid hummelGUID;
+        ObjectGuid baxterGUID;
         uint32 spawnCrazedTimer;
 
         uint8 uiPhase;
@@ -122,17 +122,9 @@ public:
             SetHeaders(DataHeader);
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-            uiAshGUID = 0;
-            uiAdaGUID = 0;
-            uiArchmageArugalGUID = 0;
-
-            DoorCourtyardGUID = 0;
-            DoorSorcererGUID = 0;
-            DoorArugalGUID = 0;
-
-            fryeGUID = 0;
-            hummelGUID = 0;
-            baxterGUID = 0;
+            fryeGUID.Clear();
+            hummelGUID.Clear();
+            baxterGUID.Clear();
 
             uiPhase = 0;
             uiTimer = 0;
@@ -161,17 +153,17 @@ public:
                 case GO_COURTYARD_DOOR:
                     DoorCourtyardGUID = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_SORCERER_DOOR:
                     DoorSorcererGUID = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
                 case GO_ARUGAL_DOOR:
                     DoorArugalGUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
-                        HandleGameObject(0, true, go);
+                        HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
             }
         }
