@@ -224,7 +224,6 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
                         {
                             creatureTarget->UpdateEntry(uiNewEntry);
                             creatureTarget->DespawnOrUnsummon(DESPAWN_TIME);
-                            caster->RewardPlayerAndGroupAtEvent(uiNewEntry, caster);
                         }
                     }
             }
@@ -2102,6 +2101,11 @@ class spell_q12641_death_comes_from_on_high : public SpellScriptLoader
 };
 
 // 52694 - Recall Eye of Acherus
+enum Recall_Eye_of_Acherus
+{
+    THE_EYE_OF_ACHERUS = 51852
+};
+
 class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
 {
     public:
@@ -2117,6 +2121,7 @@ class spell_q12641_recall_eye_of_acherus : public SpellScriptLoader
                 {
                     player->StopCastingCharm();
                     player->StopCastingBindSight();
+                    player->RemoveAura(THE_EYE_OF_ACHERUS);
                 }
             }
 
@@ -2454,3 +2459,4 @@ void AddSC_quest_spell_scripts()
     new spell_q14100_q14111_make_player_destroy_totems();
     new spell_q10929_fumping();
 }
+

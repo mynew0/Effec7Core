@@ -365,9 +365,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                     player->GetMap() ? player->GetMap()->GetMapName() : "Unknown",
                     areaId, areaName.c_str(), zoneName.c_str(),
                     (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "",
-
-                    GUID_LOPART(guid));
-
+                    guid.ToString().c_str());
 
                 // Database Logging
                 uint64 sel_guid = player->GetTarget();
@@ -379,11 +377,9 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, st
                 sprintf(position, "X: %f Y: %f Z: %f Map: %u", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId());
                 stmt->setString(3, position);
                 char selection[96];
-                sprintf(selection, "%s: %s (GUID: %u)", GetLogNameForGuid(sel_guid), (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
+                sprintf(selection, "%s: %s (GUID: %u)", GetLogNameForGuid(sel_guid), (player->GetSelectedUnit()) ? player->GetSelectedUnit()->GetName().c_str() : "", guid.ToString().c_str());
                 stmt->setString(4, selection);
                 CharacterDatabase.Execute(stmt);
-
-                    guid.ToString().c_str());
 
                 if ((sIRC->logmask & 2) != 0)
                     {

@@ -444,6 +444,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
         }
 };
 
+
 enum RibbonPoleData
 {
     SPELL_HAS_FULL_MIDSUMMER_SET = 58933,
@@ -460,80 +461,375 @@ enum RibbonPoleData
 
 class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
 {
-    public:
-        spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
+public:
+    spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
 
-        class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+    class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/)
         {
-            PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+            if (!sSpellMgr->GetSpellInfo(SPELL_HAS_FULL_MIDSUMMER_SET) ||
+                !sSpellMgr->GetSpellInfo(SPELL_BURNING_HOT_POLE_DANCE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_RIBBON_DANCE))
+                return false;
+            return true;
+        }
 
-            bool Validate(SpellInfo const* /*spellInfo*/)
+        void PeriodicTick(AuraEffect const* /*aurEff*/)
+        {
+            Unit* target = GetTarget();
+
+            if (!target)
+                return;
+
+            // check if aura needs to be removed
+            if (!target->FindNearestGameObject(GO_RIBBON_POLE, 10.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HAS_FULL_MIDSUMMER_SET) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_BURNING_HOT_POLE_DANCE) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_RIBBON_DANCE))
-                    return false;
-                return true;
+                target->InterruptNonMeleeSpells(false);
+                target->RemoveAurasDueToSpell(GetId());
+                if (target->HasAura(SPELL_RIBBON_VISUAL1))
+                    target->RemoveAura(SPELL_RIBBON_VISUAL1);
+                if (target->HasAura(SPELL_RIBBON_VISUAL2))
+                    target->RemoveAura(SPELL_RIBBON_VISUAL2);
+                if (target->HasAura(SPELL_RIBBON_VISUAL3))
+                    target->RemoveAura(SPELL_RIBBON_VISUAL3);
+                return;
             }
 
-            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            // set xp buff duration
+            if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
+            {
+                aur->SetMaxDuration(aur->GetMaxDuration() >= 3600000 ? 3600000 : aur->GetMaxDuration() + 180000);
+                aur->RefreshDuration();
+
+                if (aur->GetMaxDuration() <= 1000000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET) && !target->HasAura(SPELL_RIBBON_VISUAL1))
+                    target->CastSpell(target, SPELL_RIBBON_VISUAL1, true);
+
+                if (aur->GetMaxDuration() > 1000000 && aur->GetMaxDuration() <= 2000000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET) && !target->HasAura(SPELL_RIBBON_VISUAL2))
+                    target->CastSpell(target, SPELL_RIBBON_VISUAL2, true);
+
+                if (aur->GetMaxDuration() > 3000000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET) && !target->HasAura(SPELL_RIBBON_VISUAL3))
+                    target->CastSpell(target, SPELL_RIBBON_VISUAL3, true);
+
+                // reward achievement criteria
+                if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
+                {
+                    target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
+                    if (Unit* dummy = target->FindNearestCreature(NPC_RIBBON_POLE, 20))
+                        dummy->CastSpell(dummy, SPELL_FIREWORKS, true);
+                    target->CastSpell(target, SPELL_FIRE_PATCH, true);
+                }
+            }
+            else
+                target->AddAura(SPELL_RIBBON_DANCE, target);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_ribbon_pole_dancer_check_AuraScript();
+    }
+};
+
+enum RamBlaBla
+{
+    SPELL_GIDDYUP                           = 42924,
+    SPELL_RENTAL_RACING_RAM                 = 43883,
+    SPELL_RENTAL_RACING_RAM_AURA            = 42146,
+    SPELL_RAM_LEVEL_NEUTRAL                 = 43310,
+    SPELL_RAM_TROT                          = 42992,
+    SPELL_RAM_CANTER                        = 42993,
+    SPELL_RAM_GALLOP                        = 42994,
+    SPELL_RAM_FATIGUE                       = 43052,
+    SPELL_EXHAUSTED_RAM                     = 43332,
+
+    // Quest
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN  = 43345,
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW = 43346,
+    SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED    = 43347
+};
+
+// 42924 - Giddyup!
+class spell_brewfest_giddyup : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_giddyup() : SpellScriptLoader("spell_brewfest_giddyup") { }
+
+        class spell_brewfest_giddyup_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_giddyup_AuraScript);
+
+            void OnChange(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 Unit* target = GetTarget();
-
-                if (!target)
-                    return;
-
-                // check if aura needs to be removed
-                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 10.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
+                if (!target->HasAura(SPELL_RENTAL_RACING_RAM))
                 {
-                    target->InterruptNonMeleeSpells(false);
-                    target->RemoveAurasDueToSpell(GetId());
-                    if (target->HasAura(SPELL_RIBBON_VISUAL1))
-                        target->RemoveAura(SPELL_RIBBON_VISUAL1);
-                    if (target->HasAura(SPELL_RIBBON_VISUAL2))
-                        target->RemoveAura(SPELL_RIBBON_VISUAL2);
-                    if (target->HasAura(SPELL_RIBBON_VISUAL3))
-                        target->RemoveAura(SPELL_RIBBON_VISUAL3);
+                    target->RemoveAura(GetId());
                     return;
                 }
 
-                // set xp buff duration
-                if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
+                if (target->HasAura(SPELL_EXHAUSTED_RAM))
+                    return;
+
+                switch (GetStackAmount())
                 {
-                    aur->SetMaxDuration(aur->GetMaxDuration() >= 3600000 ? 3600000 : aur->GetMaxDuration() + 180000);
-                    aur->RefreshDuration();
-
-                    if (aur->GetMaxDuration() <= 1000000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET) && !target->HasAura(SPELL_RIBBON_VISUAL1))
-                        target->CastSpell(target, SPELL_RIBBON_VISUAL1, true);
-
-                    if (aur->GetMaxDuration() > 1000000 && aur->GetMaxDuration() <= 2000000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET) && !target->HasAura(SPELL_RIBBON_VISUAL2))
-                        target->CastSpell(target, SPELL_RIBBON_VISUAL2, true);
-
-                    if (aur->GetMaxDuration() > 3000000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET) && !target->HasAura(SPELL_RIBBON_VISUAL3))
-                        target->CastSpell(target, SPELL_RIBBON_VISUAL3, true);
-
-                    // reward achievement criteria
-                    if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
-                    {
-                        target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
-                        if (Unit* dummy = target->FindNearestCreature(NPC_RIBBON_POLE, 20))
-                            dummy->CastSpell(dummy, SPELL_FIREWORKS, true);
-                        target->CastSpell(target, SPELL_FIRE_PATCH, true);
-                    }
+                    case 1: // green
+                        target->RemoveAura(SPELL_RAM_LEVEL_NEUTRAL);
+                        target->RemoveAura(SPELL_RAM_CANTER);
+                        target->CastSpell(target, SPELL_RAM_TROT, true);
+                        break;
+                    case 6: // yellow
+                        target->RemoveAura(SPELL_RAM_TROT);
+                        target->RemoveAura(SPELL_RAM_GALLOP);
+                        target->CastSpell(target, SPELL_RAM_CANTER, true);
+                        break;
+                    case 11: // red
+                        target->RemoveAura(SPELL_RAM_CANTER);
+                        target->CastSpell(target, SPELL_RAM_GALLOP, true);
+                        break;
+                    default:
+                        break;
                 }
-                else
-                    target->AddAura(SPELL_RIBBON_DANCE, target);
+
+                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_DEFAULT)
+                {
+                    target->RemoveAura(SPELL_RAM_TROT);
+                    target->CastSpell(target, SPELL_RAM_LEVEL_NEUTRAL, true);
+                }
             }
 
-            void Register()
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+                GetTarget()->RemoveAuraFromStack(GetId());
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_brewfest_giddyup_AuraScript::OnChange, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_brewfest_giddyup_AuraScript::OnChange, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_brewfest_giddyup_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        AuraScript* GetAuraScript() const override
         {
-            return new spell_gen_ribbon_pole_dancer_check_AuraScript();
+            return new spell_brewfest_giddyup_AuraScript();
+        }
+};
+
+// 43310 - Ram Level - Neutral
+// 42992 - Ram - Trot
+// 42993 - Ram - Canter
+// 42994 - Ram - Gallop
+class spell_brewfest_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_ram() : SpellScriptLoader("spell_brewfest_ram") { }
+
+        class spell_brewfest_ram_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_ram_AuraScript);
+
+            void OnPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* target = GetTarget();
+                if (target->HasAura(SPELL_EXHAUSTED_RAM))
+                    return;
+
+                switch (GetId())
+                {
+                    case SPELL_RAM_LEVEL_NEUTRAL:
+                        if (Aura* aura = target->GetAura(SPELL_RAM_FATIGUE))
+                            aura->ModStackAmount(-4);
+                        break;
+                    case SPELL_RAM_TROT: // green
+                        if (Aura* aura = target->GetAura(SPELL_RAM_FATIGUE))
+                            aura->ModStackAmount(-2);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_GREEN, true);
+                        break;
+                    case SPELL_RAM_CANTER:
+                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, 1, target, TRIGGERED_FULL_MASK);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_YELLOW, true);
+                        break;
+                    case SPELL_RAM_GALLOP:
+                        target->CastCustomSpell(SPELL_RAM_FATIGUE, SPELLVALUE_AURA_STACK, target->HasAura(SPELL_RAM_FATIGUE) ? 4 : 5 /*Hack*/, target, TRIGGERED_FULL_MASK);
+                        if (aurEff->GetTickNumber() == 4)
+                            target->CastSpell(target, SPELL_BREWFEST_QUEST_SPEED_BUNNY_RED, true);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            void Register() override
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_brewfest_ram_AuraScript::OnPeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_ram_AuraScript();
+        }
+};
+
+// 43052 - Ram Fatigue
+class spell_brewfest_ram_fatigue : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_ram_fatigue() : SpellScriptLoader("spell_brewfest_ram_fatigue") { }
+
+        class spell_brewfest_ram_fatigue_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_ram_fatigue_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+
+                if (GetStackAmount() == 101)
+                {
+                    target->RemoveAura(SPELL_RAM_LEVEL_NEUTRAL);
+                    target->RemoveAura(SPELL_RAM_TROT);
+                    target->RemoveAura(SPELL_RAM_CANTER);
+                    target->RemoveAura(SPELL_RAM_GALLOP);
+                    target->RemoveAura(SPELL_GIDDYUP);
+
+                    target->CastSpell(target, SPELL_EXHAUSTED_RAM, true);
+                }
+            }
+
+            void Register() override
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_brewfest_ram_fatigue_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_ram_fatigue_AuraScript();
+        }
+};
+
+// 43450 - Brewfest - apple trap - friendly DND
+class spell_brewfest_apple_trap : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_apple_trap() : SpellScriptLoader("spell_brewfest_apple_trap") { }
+
+        class spell_brewfest_apple_trap_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_apple_trap_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAura(SPELL_RAM_FATIGUE);
+            }
+
+            void Register() override
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_brewfest_apple_trap_AuraScript::OnApply, EFFECT_0, SPELL_AURA_FORCE_REACTION, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_apple_trap_AuraScript();
+        }
+};
+
+// 43332 - Exhausted Ram
+class spell_brewfest_exhausted_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_exhausted_ram() : SpellScriptLoader("spell_brewfest_exhausted_ram") { }
+
+        class spell_brewfest_exhausted_ram_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_brewfest_exhausted_ram_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->CastSpell(target, SPELL_RAM_LEVEL_NEUTRAL, true);
+            }
+
+            void Register() override
+            {
+                OnEffectRemove += AuraEffectApplyFn(spell_brewfest_exhausted_ram_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DECREASE_SPEED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_brewfest_exhausted_ram_AuraScript();
+        }
+};
+
+// 43714 - Brewfest - Relay Race - Intro - Force - Player to throw- DND
+class spell_brewfest_relay_race_intro_force_player_to_throw : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_relay_race_intro_force_player_to_throw() : SpellScriptLoader("spell_brewfest_relay_race_intro_force_player_to_throw") { }
+
+        class spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript);
+
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                // All this spells trigger a spell that requires reagents; if the
+                // triggered spell is cast as "triggered", reagents are not consumed
+                GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_POWER_AND_REAGENT_COST));
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
+        }
+};
+
+// 43876 - Dismount Ram
+class spell_brewfest_dismount_ram : public SpellScriptLoader
+{
+    public:
+        spell_brewfest_dismount_ram() : SpellScriptLoader("spell_brewfest_dismount_ram") { }
+
+        class spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->RemoveAura(SPELL_RENTAL_RACING_RAM);
+            }
+
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_brewfest_relay_race_intro_force_player_to_throw_SpellScript();
         }
 };
 
@@ -556,4 +852,12 @@ void AddSC_holiday_spell_scripts()
     new spell_winter_veil_px_238_winter_wondervolt();
 
     new spell_gen_ribbon_pole_dancer_check();
+    // Brewfest
+    new spell_brewfest_giddyup();
+    new spell_brewfest_ram();
+    new spell_brewfest_ram_fatigue();
+    new spell_brewfest_apple_trap();
+    new spell_brewfest_exhausted_ram();
+    new spell_brewfest_relay_race_intro_force_player_to_throw();
+    new spell_brewfest_dismount_ram();
 }
