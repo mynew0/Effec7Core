@@ -1426,7 +1426,6 @@ void AddBattlegroundScripts()
 void AddSC_npc_dynamic_teleporter();
 void AddSC_PWS_Transmogrification();
 void AddSC_CS_Transmogrification();
-void AddSC_ArenaWatcher();
 void Add_SC_Custom_Rates();
 void AddSC_npc_1v1arena();
 void AddSC_custom();
@@ -1439,7 +1438,6 @@ void AddCustomScripts()
     AddSC_npc_dynamic_teleporter();
     AddSC_PWS_Transmogrification();
     AddSC_CS_Transmogrification();
-    AddSC_ArenaWatcher();
     Add_SC_Custom_Rates();
     AddSC_npc_1v1arena();
 	AddSC_custom();

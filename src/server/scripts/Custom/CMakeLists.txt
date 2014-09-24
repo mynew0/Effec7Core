@@ -27,7 +27,6 @@ set(scripts_STAT_SRCS
   Custom/TrialOfTheChampion/TW_boss_black_knight.cpp
   Custom/TrialOfTheChampion/TW_trial_of_the_champion.cpp
   Custom/Ulduar/TW_boss_thorim.cpp
-  Custom/Spectator.cpp
   Custom/IndividualRateSystem.cpp
   Custom/DynamicTeleporter.cpp
   Custom/1v1.cpp

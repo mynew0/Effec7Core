@@ -1200,11 +1200,6 @@ class Player : public Unit, public GridObject<Player>
         void SetHas310Flyer(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_HAS_310_FLYER; else m_ExtraFlags &= ~PLAYER_EXTRA_HAS_310_FLYER; }
         void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
 
-        void SetSpectate(bool on);
-        bool isSpectator() const { return spectatorFlag; }
-        bool isSpectateCanceled() { return spectateCanceled; }
-        void CancelSpectate() { spectateCanceled = true; }
-
         void GiveXP(uint32 xp, Unit* victim, float group_rate=1.0f);
         void GiveLevel(uint8 level);
 
@@ -2731,13 +2726,9 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_CustomXpRate;
         uint32 m_CustomLootRate;
         
-        // Spectator System
-        bool spectatorFlag;
-        bool spectateCanceled;
 
 	public:
 		QuestStatusSaveMap m_RewardedQuestsSave2;
-
 };
 
 void AddItemsSetItem(Player* player, Item* item);
