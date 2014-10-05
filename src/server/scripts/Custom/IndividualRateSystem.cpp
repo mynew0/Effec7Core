@@ -36,10 +36,10 @@ private:
 		}
 	}
 public:
-	static void DeleteRateFromDB(uint64 guid, CharacterDatabaseStatements statement)
+	static void DeleteRateFromDB(ObjectGuid guid, CharacterDatabaseStatements statement)
 	{
 		PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(statement);
-		stmt->setUInt32(0, GUID_LOPART(guid));
+		stmt->setUInt32(0, guid.GetCounter());
 		CharacterDatabase.Execute(stmt);
 	}
 
@@ -71,7 +71,7 @@ public:
 	{
 	}
 
-	void Ondelete(uint64 guid)
+	void Ondelete(ObjectGuid guid)
 	{
 		CustomRates::DeleteRateFromDB(guid, CHAR_DEL_INDIVIDUAL_XP_RATE);
 		CustomRates::DeleteRateFromDB(guid, CHAR_DEL_INDIVIDUAL_LOOT_RATE);

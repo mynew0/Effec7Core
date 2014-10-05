@@ -83,21 +83,21 @@ const char* Transmogrification::GetSlotName(uint8 slot, WorldSession* /*session*
 
     switch (slot)
     {
-    case EQUIPMENT_SLOT_HEAD: return  "Head";// session->GetTrinityString(LANG_SLOT_NAME_HEAD);
-    case EQUIPMENT_SLOT_SHOULDERS: return  "Shoulders";// session->GetTrinityString(LANG_SLOT_NAME_SHOULDERS);
-    case EQUIPMENT_SLOT_BODY: return  "Shirt";// session->GetTrinityString(LANG_SLOT_NAME_BODY);
-    case EQUIPMENT_SLOT_CHEST: return  "Chest";// session->GetTrinityString(LANG_SLOT_NAME_CHEST);
-    case EQUIPMENT_SLOT_WAIST: return  "Waist";// session->GetTrinityString(LANG_SLOT_NAME_WAIST);
-    case EQUIPMENT_SLOT_LEGS: return  "Legs";// session->GetTrinityString(LANG_SLOT_NAME_LEGS);
-    case EQUIPMENT_SLOT_FEET: return  "Feet";// session->GetTrinityString(LANG_SLOT_NAME_FEET);
-    case EQUIPMENT_SLOT_WRISTS: return  "Wrists";// session->GetTrinityString(LANG_SLOT_NAME_WRISTS);
-    case EQUIPMENT_SLOT_HANDS: return  "Hands";// session->GetTrinityString(LANG_SLOT_NAME_HANDS);
-    case EQUIPMENT_SLOT_BACK: return  "Back";// session->GetTrinityString(LANG_SLOT_NAME_BACK);
-    case EQUIPMENT_SLOT_MAINHAND: return  "Main hand";// session->GetTrinityString(LANG_SLOT_NAME_MAINHAND);
-    case EQUIPMENT_SLOT_OFFHAND: return  "Off hand";// session->GetTrinityString(LANG_SLOT_NAME_OFFHAND);
-    case EQUIPMENT_SLOT_RANGED: return  "Ranged";// session->GetTrinityString(LANG_SLOT_NAME_RANGED);
-    case EQUIPMENT_SLOT_TABARD: return  "Tabard";// session->GetTrinityString(LANG_SLOT_NAME_TABARD);
-    default: return NULL;
+        case EQUIPMENT_SLOT_HEAD: return  "Head";// session->GetTrinityString(LANG_SLOT_NAME_HEAD);
+        case EQUIPMENT_SLOT_SHOULDERS: return  "Shoulders";// session->GetTrinityString(LANG_SLOT_NAME_SHOULDERS);
+        case EQUIPMENT_SLOT_BODY: return  "Shirt";// session->GetTrinityString(LANG_SLOT_NAME_BODY);
+        case EQUIPMENT_SLOT_CHEST: return  "Chest";// session->GetTrinityString(LANG_SLOT_NAME_CHEST);
+        case EQUIPMENT_SLOT_WAIST: return  "Waist";// session->GetTrinityString(LANG_SLOT_NAME_WAIST);
+        case EQUIPMENT_SLOT_LEGS: return  "Legs";// session->GetTrinityString(LANG_SLOT_NAME_LEGS);
+        case EQUIPMENT_SLOT_FEET: return  "Feet";// session->GetTrinityString(LANG_SLOT_NAME_FEET);
+        case EQUIPMENT_SLOT_WRISTS: return  "Wrists";// session->GetTrinityString(LANG_SLOT_NAME_WRISTS);
+        case EQUIPMENT_SLOT_HANDS: return  "Hands";// session->GetTrinityString(LANG_SLOT_NAME_HANDS);
+        case EQUIPMENT_SLOT_BACK: return  "Back";// session->GetTrinityString(LANG_SLOT_NAME_BACK);
+        case EQUIPMENT_SLOT_MAINHAND: return  "Main hand";// session->GetTrinityString(LANG_SLOT_NAME_MAINHAND);
+        case EQUIPMENT_SLOT_OFFHAND: return  "Off hand";// session->GetTrinityString(LANG_SLOT_NAME_OFFHAND);
+        case EQUIPMENT_SLOT_RANGED: return  "Ranged";// session->GetTrinityString(LANG_SLOT_NAME_RANGED);
+        case EQUIPMENT_SLOT_TABARD: return  "Tabard";// session->GetTrinityString(LANG_SLOT_NAME_TABARD);
+        default: return NULL;
     }
 }
 
@@ -129,21 +129,21 @@ std::string Transmogrification::GetSlotIcon(uint8 slot, uint32 width, uint32 hei
     ss << "|TInterface/PaperDoll/";
     switch (slot)
     {
-    case EQUIPMENT_SLOT_HEAD: ss << "UI-PaperDoll-Slot-Head"; break;
-    case EQUIPMENT_SLOT_SHOULDERS: ss << "UI-PaperDoll-Slot-Shoulder"; break;
-    case EQUIPMENT_SLOT_BODY: ss << "UI-PaperDoll-Slot-Shirt"; break;
-    case EQUIPMENT_SLOT_CHEST: ss << "UI-PaperDoll-Slot-Chest"; break;
-    case EQUIPMENT_SLOT_WAIST: ss << "UI-PaperDoll-Slot-Waist"; break;
-    case EQUIPMENT_SLOT_LEGS: ss << "UI-PaperDoll-Slot-Legs"; break;
-    case EQUIPMENT_SLOT_FEET: ss << "UI-PaperDoll-Slot-Feet"; break;
-    case EQUIPMENT_SLOT_WRISTS: ss << "UI-PaperDoll-Slot-Wrists"; break;
-    case EQUIPMENT_SLOT_HANDS: ss << "UI-PaperDoll-Slot-Hands"; break;
-    case EQUIPMENT_SLOT_BACK: ss << "UI-PaperDoll-Slot-Chest"; break;
-    case EQUIPMENT_SLOT_MAINHAND: ss << "UI-PaperDoll-Slot-MainHand"; break;
-    case EQUIPMENT_SLOT_OFFHAND: ss << "UI-PaperDoll-Slot-SecondaryHand"; break;
-    case EQUIPMENT_SLOT_RANGED: ss << "UI-PaperDoll-Slot-Ranged"; break;
-    case EQUIPMENT_SLOT_TABARD: ss << "UI-PaperDoll-Slot-Tabard"; break;
-    default: ss << "UI-Backpack-EmptySlot";
+        case EQUIPMENT_SLOT_HEAD: ss << "UI-PaperDoll-Slot-Head"; break;
+        case EQUIPMENT_SLOT_SHOULDERS: ss << "UI-PaperDoll-Slot-Shoulder"; break;
+        case EQUIPMENT_SLOT_BODY: ss << "UI-PaperDoll-Slot-Shirt"; break;
+        case EQUIPMENT_SLOT_CHEST: ss << "UI-PaperDoll-Slot-Chest"; break;
+        case EQUIPMENT_SLOT_WAIST: ss << "UI-PaperDoll-Slot-Waist"; break;
+        case EQUIPMENT_SLOT_LEGS: ss << "UI-PaperDoll-Slot-Legs"; break;
+        case EQUIPMENT_SLOT_FEET: ss << "UI-PaperDoll-Slot-Feet"; break;
+        case EQUIPMENT_SLOT_WRISTS: ss << "UI-PaperDoll-Slot-Wrists"; break;
+        case EQUIPMENT_SLOT_HANDS: ss << "UI-PaperDoll-Slot-Hands"; break;
+        case EQUIPMENT_SLOT_BACK: ss << "UI-PaperDoll-Slot-Chest"; break;
+        case EQUIPMENT_SLOT_MAINHAND: ss << "UI-PaperDoll-Slot-MainHand"; break;
+        case EQUIPMENT_SLOT_OFFHAND: ss << "UI-PaperDoll-Slot-SecondaryHand"; break;
+        case EQUIPMENT_SLOT_RANGED: ss << "UI-PaperDoll-Slot-Ranged"; break;
+        case EQUIPMENT_SLOT_TABARD: ss << "UI-PaperDoll-Slot-Tabard"; break;
+        default: ss << "UI-Backpack-EmptySlot";
     }
     ss << ":" << width << ":" << height << ":" << x << ":" << y << "|t";
     return ss.str();
@@ -261,25 +261,25 @@ void Transmogrification::SetFakeEntry(Player* player, Item* item, uint32 entry)
     UpdateItem(player, item);
 }
 
-TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, uint64 itemGUID, uint8 slot, bool no_cost)
+TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, ObjectGuid itemGUID, uint8 slot, bool no_cost)
 {
     TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify");
 
     // slot of the transmogrified item
     if (slot >= EQUIPMENT_SLOT_END)
     {
-        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - Player (GUID: %u, name: %s) tried to transmogrify an item (lowguid: %u) with a wrong slot (%u) when transmogrifying items.", player->GetGUIDLow(), player->GetName().c_str(), GUID_LOPART(itemGUID), slot);
+        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify an %s with a wrong slot (%u) when transmogrifying items.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemGUID.ToString().c_str(), slot);
         return LANG_ERR_TRANSMOG_INVALID_SLOT;
     }
 
     Item* itemTransmogrifier = NULL;
     // guid of the transmogrifier item, if it's not 0
-    if (itemGUID)
+    if (!itemGUID.IsEmpty())
     {
         itemTransmogrifier = player->GetItemByGuid(itemGUID);
         if (!itemTransmogrifier)
         {
-            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - Player (GUID: %u, name: %s) tried to transmogrify with an invalid item (lowguid: %u).", player->GetGUIDLow(), player->GetName().c_str(), GUID_LOPART(itemGUID));
+            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify with an invalid %s.", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemGUID.ToString().c_str());
             return LANG_ERR_TRANSMOG_MISSING_SRC_ITEM;
         }
     }
@@ -288,7 +288,7 @@ TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, uint64 i
     Item* itemTransmogrified = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
     if (!itemTransmogrified)
     {
-        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - Player (GUID: %u, name: %s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetGUIDLow(), player->GetName().c_str(), slot);
+        TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) tried to transmogrify an invalid item in a valid slot (slot: %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), slot);
         return LANG_ERR_TRANSMOG_MISSING_DEST_ITEM;
     }
 
@@ -300,7 +300,7 @@ TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, uint64 i
     {
         if (!CanTransmogrifyItemWithItem(player, itemTransmogrified->GetTemplate(), itemTransmogrifier->GetTemplate()))
         {
-            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - Player (GUID: %u, name: %s) failed CanTransmogrifyItemWithItem (%u with %u).", player->GetGUIDLow(), player->GetName().c_str(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+            TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) failed CanTransmogrifyItemWithItem (%u with %u).", player->GetName().c_str(), player->GetGUID().ToString().c_str(), itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
             return LANG_ERR_TRANSMOG_INVALID_ITEMS;
         }
 
@@ -322,7 +322,7 @@ TransmogTrinityStrings Transmogrification::Transmogrify(Player* player, uint64 i
             if (cost) // 0 cost if reverting look
             {
                 if (cost < 0)
-                    TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - Player (GUID: %u, name: %s) transmogrification invalid cost (non negative, amount %i). Transmogrified %u with %u", player->GetGUIDLow(), player->GetName().c_str(), -cost, itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
+                    TC_LOG_DEBUG("custom.transmog", "Transmogrification::Transmogrify - %s (%s) transmogrification invalid cost (non negative, amount %i). Transmogrified %u with %u", player->GetName().c_str(), player->GetGUID().ToString().c_str(), -cost, itemTransmogrified->GetEntry(), itemTransmogrifier->GetEntry());
                 else
                 {
                     if (!player->HasEnoughMoney(cost))
@@ -579,15 +579,15 @@ bool Transmogrification::IsAllowedQuality(uint32 quality) const
 
     switch (quality)
     {
-    case ITEM_QUALITY_POOR: return AllowPoor;
-    case ITEM_QUALITY_NORMAL: return AllowCommon;
-    case ITEM_QUALITY_UNCOMMON: return AllowUncommon;
-    case ITEM_QUALITY_RARE: return AllowRare;
-    case ITEM_QUALITY_EPIC: return AllowEpic;
-    case ITEM_QUALITY_LEGENDARY: return AllowLegendary;
-    case ITEM_QUALITY_ARTIFACT: return AllowArtifact;
-    case ITEM_QUALITY_HEIRLOOM: return AllowHeirloom;
-    default: return false;
+        case ITEM_QUALITY_POOR: return AllowPoor;
+        case ITEM_QUALITY_NORMAL: return AllowCommon;
+        case ITEM_QUALITY_UNCOMMON: return AllowUncommon;
+        case ITEM_QUALITY_RARE: return AllowRare;
+        case ITEM_QUALITY_EPIC: return AllowEpic;
+        case ITEM_QUALITY_LEGENDARY: return AllowLegendary;
+        case ITEM_QUALITY_ARTIFACT: return AllowArtifact;
+        case ITEM_QUALITY_HEIRLOOM: return AllowHeirloom;
+        default: return false;
     }
 }
 
@@ -680,35 +680,35 @@ void Transmogrification::LoadConfig(bool reload)
     }
 }
 
-std::vector<uint64> Transmogrification::GetItemList(const Player* player) const
+std::vector<ObjectGuid> Transmogrification::GetItemList(const Player* player) const
 {
-    std::vector<uint64> itemlist;
+    std::vector<ObjectGuid> itemlist;
 
     // Copy paste from Player::GetItemByGuid(guid)
 
     for (uint8 i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
-        if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            itemlist.push_back(pItem->GetGUID());
+    if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        itemlist.push_back(pItem->GetGUID());
 
     for (uint8 i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
-        if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            itemlist.push_back(pItem->GetGUID());
+    if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        itemlist.push_back(pItem->GetGUID());
 
     for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_BAG_END; ++i)
-        if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
-            itemlist.push_back(pItem->GetGUID());
+    if (Item* pItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, i))
+        itemlist.push_back(pItem->GetGUID());
 
     for (uint8 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
-        if (Bag* pBag = player->GetBagByPos(i))
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-                if (Item* pItem = pBag->GetItemByPos(j))
-                    itemlist.push_back(pItem->GetGUID());
+    if (Bag* pBag = player->GetBagByPos(i))
+    for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+    if (Item* pItem = pBag->GetItemByPos(j))
+        itemlist.push_back(pItem->GetGUID());
 
     for (uint8 i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
-        if (Bag* pBag = player->GetBagByPos(i))
-            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
-                if (Item* pItem = pBag->GetItemByPos(j))
-                    itemlist.push_back(pItem->GetGUID());
+    if (Bag* pBag = player->GetBagByPos(i))
+    for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
+    if (Item* pItem = pBag->GetItemByPos(j))
+        itemlist.push_back(pItem->GetGUID());
 
     return itemlist;
 }
@@ -718,7 +718,7 @@ namespace
     class PS_Transmogrification : public PlayerScript
     {
     public:
-        PS_Transmogrification(): PlayerScript("PS_Transmogrification") {}
+        PS_Transmogrification() : PlayerScript("PS_Transmogrification") { }
 
         void OnSave(Player* player) override
         {
@@ -732,14 +732,14 @@ namespace
             if (!player->transmogMap.empty())
             {
                 // Only save items that are in inventory / bank / etc
-                std::vector<uint64> items = sTransmogrification->GetItemList(player);
-                for (std::vector<uint64>::const_iterator it = items.begin(); it != items.end(); ++it)
+                std::vector<ObjectGuid> items = sTransmogrification->GetItemList(player);
+                for (std::vector<ObjectGuid>::const_iterator it = items.begin(); it != items.end(); ++it)
                 {
                     TransmogMapType::const_iterator it2 = player->transmogMap.find(*it);
                     if (it2 == player->transmogMap.end())
                         continue;
 
-                    trans->PAppend("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", GUID_LOPART(it2->first), it2->second, lowguid);
+                    trans->PAppend("REPLACE INTO custom_transmogrification (GUID, FakeEntry, Owner) VALUES (%u, %u, %u)", it2->first.GetCounter(), it2->second, lowguid);
                 }
             }
 
@@ -769,7 +769,7 @@ namespace
                 do
                 {
                     Field* field = result->Fetch();
-                    uint64 itemGUID = MAKE_NEW_GUID(field[0].GetUInt32(), 0, HIGHGUID_ITEM);
+                    ObjectGuid itemGUID(HIGHGUID_ITEM, 0, field[0].GetUInt32());
                     uint32 fakeEntry = field[1].GetUInt32();
                     // Only load items that are in inventory / bank / etc
                     if (sObjectMgr->GetItemTemplate(fakeEntry) && player->GetItemByGuid(itemGUID))
@@ -809,7 +809,7 @@ namespace
     class WS_Transmogrification : public WorldScript
     {
     public:
-        WS_Transmogrification(): WorldScript("WS_Transmogrification") {}
+        WS_Transmogrification() : WorldScript("WS_Transmogrification") { }
 
         void OnConfigLoad(bool reload) override
         {
