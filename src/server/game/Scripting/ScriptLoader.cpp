@@ -19,13 +19,6 @@
 #include "World.h"
 #include "AnticheatMgr.h"
 
-//examples
-void AddSC_example_creature();
-void AddSC_example_escort();
-void AddSC_example_gossip_codebox();
-void AddSC_example_misc();
-void AddSC_example_commandscript();
-
 // spells
 void AddSC_deathknight_spell_scripts();
 void AddSC_druid_spell_scripts();
@@ -40,7 +33,6 @@ void AddSC_warlock_spell_scripts();
 void AddSC_warrior_spell_scripts();
 void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
-void AddSC_example_spell_scripts();
 void AddSC_holiday_spell_scripts();
 void AddSC_pet_spell_scripts();
 
@@ -704,7 +696,6 @@ void AddSC_action_ip_logger();
 
 void AddScripts()
 {
-    AddExampleScripts();
     AddSpellScripts();
     AddSC_SmartScripts();
     AddCommandScripts();
@@ -723,15 +714,6 @@ void AddScripts()
 #endif
 }
 
-void AddExampleScripts()
-{
-    AddSC_example_creature();
-    AddSC_example_escort();
-    AddSC_example_gossip_codebox();
-    AddSC_example_misc();
-    AddSC_example_commandscript();
-}
-
 void AddSpellScripts()
 {
     AddSC_deathknight_spell_scripts();
@@ -747,7 +729,6 @@ void AddSpellScripts()
     AddSC_warrior_spell_scripts();
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
-    AddSC_example_spell_scripts();
     AddSC_holiday_spell_scripts();
     AddSC_pet_spell_scripts();
 }
@@ -1445,7 +1426,6 @@ void AddBattlegroundScripts()
 void AddSC_npc_dynamic_teleporter();
 void AddSC_PWS_Transmogrification();
 void AddSC_CS_Transmogrification();
-void AddSC_ArenaWatcher();
 void Add_SC_Custom_Rates();
 void AddSC_npc_1v1arena();
 void AddSC_custom();
@@ -1458,7 +1438,6 @@ void AddCustomScripts()
     AddSC_npc_dynamic_teleporter();
     AddSC_PWS_Transmogrification();
     AddSC_CS_Transmogrification();
-    AddSC_ArenaWatcher();
     Add_SC_Custom_Rates();
     AddSC_npc_1v1arena();
 	AddSC_custom();

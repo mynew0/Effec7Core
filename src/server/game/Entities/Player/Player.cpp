@@ -741,6 +741,13 @@ Player::Player(WorldSession* session): Unit(true)
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
+    // Init rune flags
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
+    {
+        SetRuneTimer(i, 0xFFFFFFFF);
+        SetLastRuneGraceTimer(i, 0);
+    }
+
     for (uint8 i=0; i < MAX_TIMERS; i++)
         m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
 
@@ -910,10 +917,6 @@ Player::Player(WorldSession* session): Unit(true)
     // Custom Rate
     m_CustomXpRate = 1;
     m_CustomLootRate = 1;
-
-    // Arena Spectator
-    spectatorFlag = false;
-    spectateCanceled = false;
 }
 
 Player::~Player()
@@ -1860,6 +1863,26 @@ void Player::Update(uint32 p_time)
         }
     }
 
+    if (getClass() == CLASS_DEATH_KNIGHT)
+    {
+        // Update rune timers
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
+        {
+            uint32 timer = GetRuneTimer(i);
+
+            // Don't update timer if rune is disabled
+            if (GetRuneCooldown(i))
+                continue;
+
+            // Timer has began
+            if (timer < 0xFFFFFFFF)
+            {
+                timer += p_time;
+                SetRuneTimer(i, std::min(uint32(2500), timer));
+            }
+        }
+    }
+
     // group update
     SendUpdateToOutOfRangeGroupMembers();
 
@@ -2361,18 +2384,7 @@ bool Player::TeleportToBGEntryPoint()
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-
-    Battleground* oldBg = GetBattleground();
-    bool result = TeleportTo(m_bgData.joinPos);
-
-    if (isSpectator() && result)
-    {
-        SetSpectate(false);
-        if (oldBg)
-            oldBg->RemoveSpectator(GetGUID());
-    }
-    
-    return result;
+    return TeleportTo(m_bgData.joinPos);
 }
 
 void Player::ProcessDelayedOperations()
@@ -2891,70 +2903,6 @@ void Player::SetGameMaster(bool on)
     }
 
     UpdateObjectVisibility();
-}
-
-void Player::SetSpectate(bool on)
-{
-	if (on)
-	{
-		SetSpeed(MOVE_RUN, 2.5);
-		spectatorFlag = true;
-		
-		m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
-		setFaction(35);
-		
-			if (Pet* pet = GetPet())
-			{
-				RemovePet(pet, PET_SAVE_AS_CURRENT);
-			}
-		
-			UnsummonPetTemporaryIfAny();
-		
-			RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-			ResetContestedPvP();
-		
-			getHostileRefManager().setOnlineOfflineState(false);
-			CombatStopWithPets();
-		
-			// random dispay id`s
-			uint32 morphs[8] = { 25900, 18718, 29348, 22235, 30414, 736, 20582, 28213 };
-			SetDisplayId(morphs[urand(0, 7)]);
-		
-			m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR);
-	}
-	else
-	{
-		uint32 newPhase = 0;
-		AuraEffectList const& phases = GetAuraEffectsByType(SPELL_AURA_PHASE);
-		if (!phases.empty())
-			for (AuraEffectList::const_iterator itr = phases.begin(); itr != phases.end(); ++itr)
-			newPhase |= (*itr)->GetMiscValue();
-		
-			if (!newPhase)
-			newPhase = PHASEMASK_NORMAL;
-		
-			SetPhaseMask(newPhase, false);
-		
-			m_ExtraFlags &= ~PLAYER_EXTRA_GM_ON;
-			setFactionForRace(getRace());
-			RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
-			RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
-		
-			// restore FFA PvP Server state
-			if (sWorld->IsFFAPvPRealm())
-			SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
-		
-			// restore FFA PvP area state, remove not allowed for GM mounts
-			UpdateArea(m_areaUpdateId);
-		
-			getHostileRefManager().setOnlineOfflineState(true);
-			m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
-			spectateCanceled = false;
-			spectatorFlag = false;
-			RestoreDisplayId();
-			UpdateSpeed(MOVE_RUN, true);
-	}
-	UpdateObjectVisibility();
 }
 
 void Player::SetGMVisible(bool on)
@@ -25004,8 +24952,22 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
     return cooldown;
 }
 
-void Player::SetRuneCooldown(uint8 index, uint32 cooldown)
+void Player::SetRuneCooldown(uint8 index, uint32 cooldown, bool casted /*= false*/)
 {
+    uint32 gracePeriod = GetRuneTimer(index);
+
+    if (casted && IsInCombat())
+    {
+        if (gracePeriod < 0xFFFFFFFF && cooldown > 0)
+        {
+            uint32 lessCd = std::min(uint32(2500), gracePeriod);
+            cooldown = (cooldown > lessCd) ? (cooldown - lessCd) : 0;
+            SetLastRuneGraceTimer(index, lessCd);
+        }
+
+        SetRuneTimer(index, 0);
+    }
+
     m_runes->runes[index].Cooldown = cooldown;
     m_runes->SetRuneState(index, (cooldown == 0) ? true : false);
 }
@@ -25102,9 +25064,11 @@ void Player::InitRunes()
 
     for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
-        SetBaseRune(i, runeSlotTypes[i]);                              // init base types
-        SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
-        SetRuneCooldown(i, 0);                                         // reset cooldowns
+        SetBaseRune(i, runeSlotTypes[i]);                               // init base types
+        SetCurrentRune(i, runeSlotTypes[i]);                            // init current types
+        SetRuneCooldown(i, 0);                                          // reset cooldowns
+        SetRuneTimer(i, 0xFFFFFFFF);                                    // Reset rune flags
+        SetLastRuneGraceTimer(i, 0);
         SetRuneConvertAura(i, NULL);
         m_runes->SetRuneState(i);
     }

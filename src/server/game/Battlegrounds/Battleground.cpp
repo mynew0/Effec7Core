@@ -781,8 +781,6 @@ void Battleground::EndBattleground(uint32 winner)
 
     BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(GetTypeID(), GetArenaType());
 
-    bool specPacketSent = false;
-
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         uint32 team = itr->second.Team;
@@ -864,28 +862,6 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, GetStartTime(), GetArenaType(), player->GetBGTeam());
         player->SendDirectMessage(&data);
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
-
-        if (!specPacketSent)
-        {
-            for (SpectatorList::const_iterator citer = m_Spectators.begin(); citer != m_Spectators.end(); citer++)
-            {
-                if (Player* tmpPlr = sObjectAccessor->FindPlayer(*citer))
-                {
-                    for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-                    {
-                        Player* plr = _GetPlayer(itr, "EndBattleground");
-                        if (!plr)
-                            continue;
-                        tmpPlr->GetSession()->SendNameQueryOpcode(plr->GetGUID());
-                    }
-                    WorldPacket tableData;
-                    sBattlegroundMgr->BuildBattlegroundStatusPacket(&tableData, this, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, GetStartTime(), GetArenaType(), player->GetBGTeam());
-                    tmpPlr->GetSession()->SendPacket(&pvpLogData);
-                    tmpPlr->GetSession()->SendPacket(&tableData);
-                }
-            }
-            specPacketSent = true;
-        }
     }
 
     if (winmsg_id)
@@ -1182,24 +1158,13 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (!player->isSpectator())
-        {
-            // drop flag and handle other cleanups
-            RemovePlayer(player, guid, GetPlayerTeam(guid));
+        // drop flag and handle other cleanups
+        RemovePlayer(player, guid, GetPlayerTeam(guid));
 
-            // 1 player is logging out, if it is the last, then end arena!
-            if (isArena())
-                if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
-                    EndBattleground(GetOtherTeam(player->GetBGTeam()));
-        }
-    }
-    
-    if (!player->isSpectator())
-        player->LeaveBattleground();
-    else
-    {
-        player->TeleportToBGEntryPoint();
-        RemoveSpectator(player->GetGUID());
+        // 1 player is logging out, if it is the last, then end arena!
+        if (isArena())
+            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
+                EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
 }
 

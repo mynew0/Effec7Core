@@ -713,9 +713,7 @@ enum RBACPermissions
 	RBAC_PERM_COMMAND_MUTEHISTORY                            = 1012,
 
     // custom permissions 1000+
-    RBAC_PERM_COMMAND_SPEC_LEAVE                             = 1001,
-    RBAC_PERM_COMMAND_RATE_XP                                = 1002,
-    RBAC_PERM_COMMAND_RATE_LOOT                              = 1003,
+
     RBAC_PERM_MAX
 };
 

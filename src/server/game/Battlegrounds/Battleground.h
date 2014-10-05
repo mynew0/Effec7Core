@@ -300,11 +300,6 @@ class Battleground
         bool HasFreeSlots() const;
         uint32 GetFreeSlotsForTeam(uint32 Team) const;
 
-        typedef std::set<uint32> SpectatorList;
-        void AddSpectator(uint32 playerId) { m_Spectators.insert(playerId); }
-        void RemoveSpectator(uint32 playerId) { m_Spectators.erase(playerId); }
-        bool HaveSpectators() { return (m_Spectators.size() > 0); }
-
         bool isArena() const        { return m_IsArena; }
         bool isBattleground() const { return !m_IsArena; }
         bool isRated() const        { return m_IsRated; }
@@ -478,8 +473,7 @@ class Battleground
         // because BattleGrounds with different types and same level range has different m_BracketId
         uint8 GetUniqueBracketId() const;
 
-
-    protected:
+   protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
         void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
@@ -589,9 +583,6 @@ class Battleground
 
         // Players count by team
         uint32 m_PlayersCount[BG_TEAMS_COUNT];
-
-        // Spectators
-        SpectatorList m_Spectators;
 
         // Arena team ids by team
         uint32 m_ArenaTeamIds[BG_TEAMS_COUNT];
