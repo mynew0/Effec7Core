@@ -89,14 +89,6 @@ enum Events
     EVENT_STICKY_OOZE       = 8,
 };
 
-static const uint32 OozeEntries[4] =
-{ 
-    36897, // Little Ooze 10
-    38138, // Little Ooze 25 
-    36899, // Big Ooze 10
-    38123 // Big Ooze 25
-};
-
 class boss_rotface : public CreatureScript
 {
     public:
@@ -121,7 +113,6 @@ class boss_rotface : public CreatureScript
 
                 infectionStage = 0;
                 infectionCooldown = 14000;
-                DespawnOozes();
             }
 
             void EnterCombat(Unit* who) override
@@ -149,7 +140,6 @@ class boss_rotface : public CreatureScript
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_DEATH);
-                DespawnOozes();
             }
 
             void JustReachedHome() override
@@ -188,6 +178,8 @@ class boss_rotface : public CreatureScript
                 if (summon->GetEntry() == NPC_VILE_GAS_STALKER)
                     if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_PROFESSOR_PUTRICIDE)))
                         professor->CastSpell(summon, SPELL_VILE_GAS_H, true);
+
+                summons.Summon(summon);
             }
 
             void UpdateAI(uint32 diff) override
@@ -234,16 +226,6 @@ class boss_rotface : public CreatureScript
                 }
 
                 DoMeleeAttackIfReady();
-            }
-
-            void DespawnOozes()
-            {
-                std::list<Creature*> Type[4];
-                for (int i = 0; i < 4; ++i)
-                    GetCreatureListWithEntryInGrid(Type[i], me, OozeEntries[i], 200);
-                for (int x = 0; x < 4; ++x)
-                    for (std::list<Creature*>::const_iterator itr = Type[x].begin(); itr != Type[x].end(); ++itr)
-                        (*itr)->DespawnOrUnsummon();
             }
 
         private:
@@ -388,7 +370,6 @@ class npc_precious_icc : public CreatureScript
         {
             npc_precious_iccAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 _instance = creature->GetInstanceScript();
             }
 
@@ -495,14 +476,13 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                // get 2 targets except 2 nearest
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                
-                // Selects 5 nearest dummies, including the caster
-                // .resize() runs pop_back();
-                if (targets.size() > 5)
-                    targets.resize(5);
 
-                // Selects 2 farthest ones to cast a spell
+                // .resize() runs pop_back();
+                if (targets.size() > 4)
+                    targets.resize(4);
+
                 while (targets.size() > 2)
                     targets.pop_front();
             }
@@ -529,12 +509,13 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rotface_mutated_infection_SpellScript);
 
-            bool Load() override
+        public:
+            spell_rotface_mutated_infection_SpellScript()
             {
-                _target = NULL;
-                return true;
+                _target = nullptr;
             }
 
+        private:
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // remove targets with this aura already

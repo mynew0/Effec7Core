@@ -13,9 +13,12 @@ Effec7Core is a modified Trinitycore (*MMORPG FRAMEWORK based mostly in C++*) fo
 ## Thanks to:
 + WILL BE ADDED SOON!
 
+<<<<<<< HEAD
 ## Developers:
 + Effec7
 
+=======
+>>>>>>> trinity/master
 ## Requirements
 
 + Platform: Linux, Windows or Mac
