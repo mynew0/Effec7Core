@@ -865,6 +865,13 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
         {
             PrepareSpellScript(spell_putricide_ooze_channel_SpellScript);
 
+        public:
+            spell_putricide_ooze_channel_SpellScript()
+            {
+                _target = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* spell) override
             {
                 if (!spell->ExcludeTargetAuraSpell)
@@ -878,7 +885,6 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
             // this will let use safely use ToCreature() casts in entire script
             bool Load() override
             {
-                _target = NULL;
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 

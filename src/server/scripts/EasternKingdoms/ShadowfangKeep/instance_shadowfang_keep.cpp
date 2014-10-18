@@ -1,20 +1,21 @@
+
 /*
- * Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 /* ScriptData
 SDName: Instance_Shadowfang_Keep
@@ -28,60 +29,44 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"
 #include "TemporarySummon.h"
-#include "Group.h"
-#include "GameEventMgr.h"
 
-#define MAX_ENCOUNTER              6
-
-enum Apothecary
-{
-    ACTION_SPAWN_CRAZED      = 3,
-    EVENT_LOVE_IS_IN_THE_AIR = 8
-};
+#define MAX_ENCOUNTER              4
 
 enum Yells
 {
-    SAY_BOSS_DIE_AD         = 4,
-    SAY_BOSS_DIE_AS         = 3,
-    SAY_ARCHMAGE            = 0
+    SAY_BOSS_DIE_AD = 4,
+    SAY_BOSS_DIE_AS = 3,
+    SAY_ARCHMAGE = 0
 };
 
 enum Creatures
 {
-    NPC_ASH                 = 3850,
-    NPC_ADA                 = 3849,
-    NPC_ARCHMAGE_ARUGAL     = 4275,
-    NPC_ARUGAL_VOIDWALKER   = 4627
+    NPC_ASH = 3850,
+    NPC_ADA = 3849,
+    NPC_ARCHMAGE_ARUGAL = 4275,
+    NPC_ARUGAL_VOIDWALKER = 4627
 };
 
 enum GameObjects
 {
-    GO_COURTYARD_DOOR       = 18895, //door to open when talking to NPC's
-    GO_SORCERER_DOOR        = 18972, //door to open when Fenrus the Devourer
-    GO_ARUGAL_DOOR          = 18971  //door to open when Wolf Master Nandos
+    GO_COURTYARD_DOOR = 18895, //door to open when talking to NPC's
+    GO_SORCERER_DOOR = 18972, //door to open when Fenrus the Devourer
+    GO_ARUGAL_DOOR = 18971  //door to open when Wolf Master Nandos
 };
 
 enum Spells
 {
-    SPELL_ASHCROMBE_TELEPORT    = 15742
+    SPELL_ASHCROMBE_TELEPORT = 15742
 };
 
 const Position SpawnLocation[] =
 {
-    {-148.199f, 2165.647f, 128.448f, 1.026f},
-    {-153.110f, 2168.620f, 128.448f, 1.026f},
-    {-145.905f, 2180.520f, 128.448f, 4.183f},
-    {-140.794f, 2178.037f, 128.448f, 4.090f},
-    {-138.640f, 2170.159f, 136.577f, 2.737f}
+    { -148.199f, 2165.647f, 128.448f, 1.026f },
+    { -153.110f, 2168.620f, 128.448f, 1.026f },
+    { -145.905f, 2180.520f, 128.448f, 4.183f },
+    { -140.794f, 2178.037f, 128.448f, 4.090f },
+    { -138.640f, 2170.159f, 136.577f, 2.737f }
 };
-
-const Position ApothecarySpawnLocation[] =
-{
-    {-205.196f, 2214.55f, 79.8469f, 2.40855f},
-    {-208.09f, 2217.39f, 79.8469f, 4.81711f},
-    {-210.359f, 2214.61f, 79.8476f, 1.0472f},
-};
-
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
@@ -94,7 +79,14 @@ public:
 
     struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
     {
-        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) { }
+        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map)
+        {
+            SetHeaders(DataHeader);
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+            uiPhase = 0;
+            uiTimer = 0;
+        }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -107,30 +99,8 @@ public:
         ObjectGuid DoorSorcererGUID;
         ObjectGuid DoorArugalGUID;
 
-        ObjectGuid fryeGUID;
-        ObjectGuid hummelGUID;
-        ObjectGuid baxterGUID;
-        uint32 spawnCrazedTimer;
-
         uint8 uiPhase;
         uint16 uiTimer;
-
-        bool isApothecaryTrioSpawned;
-
-        void Initialize() override
-        {
-            SetHeaders(DataHeader);
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-            fryeGUID.Clear();
-            hummelGUID.Clear();
-            baxterGUID.Clear();
-
-            uiPhase = 0;
-            uiTimer = 0;
-
-            isApothecaryTrioSpawned = false;
-        }
 
         void OnCreatureCreate(Creature* creature) override
         {
@@ -139,10 +109,6 @@ public:
                 case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
                 case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
                 case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = creature->GetGUID(); break;
-                    
-                case NPC_FRYE: fryeGUID = creature->GetGUID(); break;
-                case NPC_HUMMEL: hummelGUID = creature->GetGUID(); break;
-                case NPC_BAXTER: baxterGUID = creature->GetGUID(); break;
             }
         }
 
@@ -212,14 +178,6 @@ public:
                         DoUseDoorOrButton(DoorArugalGUID);
                     m_auiEncounter[3] = data;
                     break;
-                case TYPE_CROWN:
-                    if (data == NOT_STARTED)
-                        spawnCrazedTimer = urand(7000, 14000);
-                    m_auiEncounter[4] = data;
-                    break;
-                case TYPE_BATTLE:
-                    m_auiEncounter[5] = data;
-                    break;
             }
 
             if (data == DONE)
@@ -248,40 +206,8 @@ public:
                     return m_auiEncounter[2];
                 case TYPE_NANDOS:
                     return m_auiEncounter[3];
-                case TYPE_CROWN:
-                    return m_auiEncounter[4];
-                case TYPE_BATTLE:
-                    return m_auiEncounter[5];
             }
             return 0;
-        }
-
-        uint64 GetData64(uint32 id) const
-        {
-            switch(id)
-            {
-                case DATA_DOOR:   return DoorCourtyardGUID;
-                case DATA_FRYE:   return fryeGUID;
-                case DATA_HUMMEL: return hummelGUID;
-                case DATA_BAXTER: return baxterGUID;
-            }
-            return 0;
-        }
-
-        void OnPlayerEnter(Player* /*player*/) override
-        {
-            Map::PlayerList const& players = instance->GetPlayers();
-            if (!players.isEmpty() && !isApothecaryTrioSpawned)
-            {
-                if (Group* group = players.begin()->GetSource()->GetGroup())
-                    if (group->isLFGGroup() && sGameEventMgr->IsActiveEvent(EVENT_LOVE_IS_IN_THE_AIR))
-                    {
-                        instance->SummonCreature(NPC_FRYE, ApothecarySpawnLocation[0]);
-                        instance->SummonCreature(NPC_HUMMEL, ApothecarySpawnLocation[1]);
-                        instance->SummonCreature(NPC_BAXTER, ApothecarySpawnLocation[2]);
-                        isApothecaryTrioSpawned = true;
-                    }
-            } 
         }
 
         std::string GetSaveData() override
@@ -312,19 +238,7 @@ public:
         }
 
         void Update(uint32 uiDiff)
-        {          
-            if (GetData(TYPE_CROWN) == IN_PROGRESS)
-            {
-                if (spawnCrazedTimer <= uiDiff)
-                {
-                    if (Creature* hummel = instance->GetCreature(hummelGUID))
-                        hummel->AI()->DoAction(ACTION_SPAWN_CRAZED);
-                    spawnCrazedTimer = urand(2000, 5000);
-                }
-                else
-                    spawnCrazedTimer -= uiDiff;
-            }
-
+        {
             if (GetData(TYPE_FENRUS) != DONE)
                 return;
 
@@ -341,27 +255,28 @@ public:
                     {
                         case 1:
                         {
-                            Creature* summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
-                            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                            summon->SetReactState(REACT_DEFENSIVE);
-                            summon->CastSpell(summon, SPELL_ASHCROMBE_TELEPORT, true);
-                            summon->AI()->Talk(SAY_ARCHMAGE);
-                            uiTimer = 2000;
-                            uiPhase = 2;
-                            break;
+                                  Creature* summon = pArchmage->SummonCreature(pArchmage->GetEntry(), SpawnLocation[4], TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                  summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                  summon->SetReactState(REACT_DEFENSIVE);
+                                  summon->CastSpell(summon, SPELL_ASHCROMBE_TELEPORT, true);
+                                  summon->AI()->Talk(SAY_ARCHMAGE);
+                                  uiTimer = 2000;
+                                  uiPhase = 2;
+                                  break;
                         }
                         case 2:
                         {
-                            pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                            pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                            pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                            pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                            uiPhase = 0;
-                            break;
+                                  pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                                  pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                                  pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                                  pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+                                  uiPhase = 0;
+                                  break;
                         }
 
                     }
-                } else uiTimer -= uiDiff;
+                }
+                else uiTimer -= uiDiff;
             }
         }
     };

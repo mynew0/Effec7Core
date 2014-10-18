@@ -2149,12 +2149,13 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_necrotic_plague_SpellScript);
 
-            bool Load() override
+        public:
+            spell_the_lich_king_necrotic_plague_SpellScript()
             {
                 _hadAura = false;
-                return true;
             }
 
+        private:
             void SelectTarget(std::list<Unit*>& targets)
             {
                 targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
@@ -2189,12 +2190,13 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         {
             PrepareAuraScript(spell_the_lich_king_necrotic_plague_AuraScript);
 
-            bool Load() override
+        public:
+            spell_the_lich_king_necrotic_plague_AuraScript()
             {
                 _lastAmount = 0;
-                return true;
             }
 
+        private:
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
@@ -2566,16 +2568,17 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_valkyr_target_search_SpellScript);
 
+        public:
+            spell_the_lich_king_valkyr_target_search_SpellScript()
+            {
+                _target = nullptr;
+            }
+
+        private:
             bool Validate(SpellInfo const* /*spell*/) override
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ICE_BURST))
                     return false;
-                return true;
-            }
-
-            bool Load() override
-            {
-                _target = NULL;
                 return true;
             }
 
@@ -2689,6 +2692,13 @@ class spell_the_lich_king_vile_spirits : public SpellScriptLoader
         {
             PrepareAuraScript(spell_the_lich_king_vile_spirits_AuraScript);
 
+        public:
+            spell_the_lich_king_vile_spirits_AuraScript()
+            {
+                _is25Man = false;
+            }
+
+        private:
             bool Load() override
             {
                 _is25Man = GetUnitOwner()->GetMap()->Is25ManRaid();
@@ -2751,9 +2761,15 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
         {
             PrepareSpellScript(spell_the_lich_king_vile_spirit_move_target_search_SpellScript);
 
+        public:
+            spell_the_lich_king_vile_spirit_move_target_search_SpellScript()
+            {
+                _target = nullptr;
+            }
+
+        private:
             bool Load() override
             {
-                _target = NULL;
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
@@ -2942,6 +2958,13 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_restore_soul_SpellScript);
 
+        public:
+            spell_the_lich_king_restore_soul_SpellScript()
+            {
+                _instance = nullptr;
+            }
+
+        private:
             bool Load() override
             {
                 _instance = GetCaster()->GetInstanceScript();
